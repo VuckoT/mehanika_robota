@@ -1167,6 +1167,11 @@ def paden_kahan3(
                 np.dot(omegaS, np.cross(u_prim, v_prim)),
                 np.dot(u_prim, v_prim)
             ) - np.pi
+        
+        # Posto je teta == 2*np.pi pun okret, validno resenje je takodje
+        # teta == 0.0
+        if np.isclose(teta, 2*np.pi):
+            teta = np.float64(0.0)
     else:
         teta = (
             np.arctan2(
