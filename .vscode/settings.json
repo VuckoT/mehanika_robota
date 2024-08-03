@@ -1,7 +1,0 @@
-{
-    "python.testing.pytestArgs": [
-        "mehanika_robota"
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
-}
