@@ -37,5 +37,6 @@ ehthumbs.db
 Thumbs.db
 
 # Kes memorija #
-################
 **/__pycache__
+
+**/.vscode
