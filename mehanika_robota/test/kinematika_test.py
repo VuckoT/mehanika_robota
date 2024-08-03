@@ -4,24 +4,14 @@
 """
 *** BIBLIOTEKE ***
 """
-from ast import With
-from multiprocessing import Value
-from re import L
 import numpy as np
-from .. import kinematika as kin
-from .._alati import _testiraj_sve
+import mehanika_robota.mehanika.kinematika as kin
 import pytest
-
-"""
-*** POMOCNE FUNKCIJE ***
-"""
-def _uspesan_test_poruka(funkcija_naziv: str) -> None:
-    print(f"TEST FUNKCIJE mr.kin.{funkcija_naziv}: USPESAN")
 
 """
 *** TESTOVI ***
 """
-def PadenKahanError_test() -> None:
+def test_PadenKahanError() -> None:
     f = kin.PadenKahanError
     
     standardna_poruka = "Paden-Kahanov podproblem nema resenja"
@@ -50,10 +40,8 @@ def PadenKahanError_test() -> None:
 
     with pytest.raises(ValueError):
         f(0.0)
-        
-    print(f"TEST KLASE mehanika_robota.kinematika.PadenKahanError: USPESAN")  
     
-def dir_kin_test() -> None:
+def test_dir_kin() -> None:
     f = kin.dir_kin
 
     # Pravilna upotreba
@@ -157,10 +145,8 @@ def dir_kin_test() -> None:
              [0, 0,  1, 0, 0]],
             [np.pi / 2, 3, np.pi],
         )
-    
-    _uspesan_test_poruka("dir_kin")
 
-def jakobijan_test() -> None:
+def test_jakobijan() -> None:
     f = kin.jakobijan
 
     # Pravilna upotreba
@@ -254,10 +240,8 @@ def jakobijan_test() -> None:
             [np.pi / 2, 3, np.pi],
             koord_sistem_prostor=False
         )
-    
-    _uspesan_test_poruka("jakobijan")
 
-def manip_test() -> None:
+def test_manip() -> None:
     f = kin.manip
     
     J = [[0, 0, 0, 0, 1, 0],
@@ -353,10 +337,8 @@ def manip_test() -> None:
     
     with pytest.raises(ValueError):
         assert f(J3*3)
-        
-    _uspesan_test_poruka("manip")
 
-def inv_kin_test() -> None:
+def test_inv_kin() -> None:
     f = kin.inv_kin
     
     # Pravilna upotreba
@@ -446,10 +428,8 @@ def inv_kin_test() -> None:
             0,
             vek_kolona=True
         )
-        
-    _uspesan_test_poruka("inv_kin")
 
-def paden_kahan1_test() -> None:
+def test_paden_kahan1() -> None:
     f = kin.paden_kahan1
     
 
@@ -506,10 +486,8 @@ def paden_kahan1_test() -> None:
             [1],
             [0]]
         )
-    
-    _uspesan_test_poruka("paden_kahan1")
 
-def paden_kahan2_test() -> None:
+def test_paden_kahan2() -> None:
     f = kin.paden_kahan2
     
     # Pravilna upotreba
@@ -590,10 +568,8 @@ def paden_kahan2_test() -> None:
             [0, -1, 1.5],
             [1, 0, 1]
         )
-    
-    _uspesan_test_poruka("paden_kahan2")
 
-def paden_kahan3_test() -> None:
+def test_paden_kahan3() -> None:
     f = kin.paden_kahan3
     
     # Pravilna upotreba
@@ -697,10 +673,3 @@ def paden_kahan3_test() -> None:
             [2]],
             2e6
         )
-        
-    _uspesan_test_poruka("paden_kahan3")
-
-def testiraj_sve() -> None:
-    """Testira sve objekte iz modula i obavestava o uspesnosti testa
-    """
-    _testiraj_sve(globals())

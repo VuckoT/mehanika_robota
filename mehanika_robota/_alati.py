@@ -8,7 +8,6 @@ biblioteke
 import numpy as np
 from numpy.typing import NDArray
 from typing import Sequence
-import inspect
 
 """
 *** PRIVATNE FUNKCIJE ZA DEBAGOVANJE***
@@ -64,12 +63,3 @@ def _tol_provera(tol: int | float | np.float64, tol_naziv: str = "tol") -> None:
     
     if tol <= 0.0:
         raise ValueError(f"Tolerancija \"{tol_naziv}\" nije >0.0")
-
-def _testiraj_sve(recnik_globalnih_obj):
-    # Poziva sve funkcije iz recnika koje se zavrsavaju na "_test". Funkciju
-    # korisititi na sledeci nacin:
-    # _alati._testiraj_sve(globals())
-
-    for naziv, obj in recnik_globalnih_obj.items():
-        if inspect.isfunction(obj) and naziv.endswith("_test"):
-            obj()

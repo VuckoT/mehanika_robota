@@ -4,21 +4,14 @@
 """
 *** BIBLIOTEKE ***
 """
-from typing import Type
 import numpy as np
-from .. import _alati
+from mehanika_robota import _alati
 import pytest
-
-"""
-*** POMOCNE FUNKCIJE ***
-"""
-def _uspesan_test_poruka(funkcija_naziv: str) -> None:
-    print(f"TEST FUNKCIJE mehanika_robota._alati.{funkcija_naziv}: USPESAN")
 
 """
 *** TESTOVI ***
 """
-def _mat_provera_test() -> None:
+def test__mat_provera() -> None:
     f = _alati._mat_provera
 
     # Pravilan rezultat
@@ -48,10 +41,8 @@ def _mat_provera_test() -> None:
         
     with pytest.raises(ValueError):
         f(np.zeros((2, 1)), (0, 0))
-            
-    _uspesan_test_poruka("_mat_provera")
 
-def _vek_provera_test() -> None:
+def test__vek_provera() -> None:
     f = _alati._vek_provera
     
     # Pravilan rezultat    
@@ -82,9 +73,7 @@ def _vek_provera_test() -> None:
     with pytest.raises(AssertionError):
         f(np.array([[1], [2], [3]]), "3")
     
-    _uspesan_test_poruka("_vek_provera")
-    
-def _tol_provera_test() -> None:
+def test__tol_provera() -> None:
     f = _alati._tol_provera
 
     # Pravilan rezultat    
@@ -103,10 +92,3 @@ def _tol_provera_test() -> None:
         
     with pytest.raises(ValueError):
         f(-23.3)
-            
-    _uspesan_test_poruka("_tol_provera")
-    
-def testiraj_sve() -> None:
-    """Testira sve objekte iz modula i obavestava o uspesnosti testa
-    """
-    _alati._testiraj_sve(globals())

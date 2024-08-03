@@ -1,0 +1,41 @@
+# Kompajlirani fajlovi #
+########################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Paketi #
+##########
+# bolje je raspakovati ove fajlove pa commit-ovati njihove fajlove
+# git ima ugradjene sopstvene metode kompresije
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Log dajlovi i databaze #
+##########################
+*.log
+*.sql
+*.sqlite
+
+# Fajlovi od operativnog sistema #
+##################################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Kes memorija #
+################
+**/__pycache__

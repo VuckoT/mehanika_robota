@@ -5,22 +5,13 @@
 *** BIBLIOTEKE ***
 """
 import numpy as np
-from .. import kretanje_krutog_tela as kkt
-from .._alati import _testiraj_sve
+import mehanika_robota.mehanika.kretanje_krutog_tela as kkt
 import pytest
-
-"""
-*** POMOCNE FUNKCIJE ***
-"""
-def _uspesan_test_funkcije_poruka(funkcija_naziv: str) -> None:
-    print(
-        f"TEST FUNKCIJE mr.kkt.{funkcija_naziv}: USPESAN"
-    )
 
 """
 *** TESTOVI ***
 """   
-def vek_norm_test() -> None:
+def test_vek_norm() -> None:
     f = kkt.vek_norm
                 
     # Pravilna upotreba
@@ -58,10 +49,8 @@ def vek_norm_test() -> None:
         
     with pytest.raises(ValueError):
         f([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
-            
-    _uspesan_test_funkcije_poruka("vek_norm")
-    
-def inv_test() -> None:
+
+def test_inv() -> None:
     f = kkt.inv    
     
     # Pravilna upotreba
@@ -83,10 +72,8 @@ def inv_test() -> None:
          [1.0, 0.0, 0.0,  0.0],
          [0.0, 0.0, 0.0,  1.0]]
     )
-    
-    _uspesan_test_funkcije_poruka("inv")
 
-def lijeva_algebra_od_vek_test() -> None:
+def test_lijeva_algebra_od_vek() -> None:
     f = kkt.lijeva_algebra_od_vek
 
     # Pravilna upotreba
@@ -105,9 +92,7 @@ def lijeva_algebra_od_vek_test() -> None:
          [ 0.0,  0.0,  0.0, 0.0]]
     )
     
-    _uspesan_test_funkcije_poruka("lijeva_algebra_od_vek")
-    
-def vek_od_lijeve_algebre_test() -> None:
+def test_vek_od_lijeve_algebre() -> None:
     f = kkt.vek_od_lijeve_algebre
     
     # Pravilna upotreba
@@ -127,10 +112,8 @@ def vek_od_lijeve_algebre_test() -> None:
            [ 0,    0,    0,   0]]),
         [1.2, 2.0, 3.0, 4.0, 5.4, 6.0]
     )
-        
-    _uspesan_test_funkcije_poruka("vek_od_lijeve_algebre")
     
-def v_prostor_normiranje_test() -> None:
+def test_v_prostor_normiranje() -> None:
     f = kkt.v_prostor_normiranje
     
     # Pravilna upotreba
@@ -186,10 +169,8 @@ def v_prostor_normiranje_test() -> None:
         f([[4], [5], [6], [1], [1], [1]], True)[1],
          8.774964387392123
     )
-    
-    _uspesan_test_funkcije_poruka("v_prostor_normiranje")
 
-def exp_test() -> None:
+def test_exp() -> None:
     f = kkt.exp
     
     # Pravilna upotreba
@@ -212,10 +193,8 @@ def exp_test() -> None:
          [ 0.69297816774,  0.63134969938, 0.34810747783, 6.59536848146],
          [           0.0,            0.0,           0.0,           1.0]]
     )
-
-    _uspesan_test_funkcije_poruka("exp")
     
-def SE3_rastavi_test() -> None:
+def test_SE3_rastavi() -> None:
     f = kkt.SE3_rastavi
     
     # Pravilna upotreba
@@ -256,10 +235,8 @@ def SE3_rastavi_test() -> None:
          [1],
          [0]]
     )
-    
-    _uspesan_test_funkcije_poruka("SE3_rastavi")
 
-def log_test() -> None:
+def test_log() -> None:
     f = kkt.log
 
     # Pravilna upotreba
@@ -282,10 +259,8 @@ def log_test() -> None:
          [0.0,  1.57079632680,            0.0, 2.35619449019],
          [0.0,            0.0,            0.0,           0.0]]
     )
-
-    _uspesan_test_funkcije_poruka("log")
     
-def SE3_sastavi_test() -> None:
+def test_SE3_sastavi() -> None:
     f = kkt.SE3_sastavi
 
     # Pravilna upotreba
@@ -316,10 +291,8 @@ def SE3_sastavi_test() -> None:
          [0, 1,  0, 3],
          [0, 0,  0, 1]]
     )
-    
-    _uspesan_test_funkcije_poruka("SE3_sastavi")
 
-def Ad_test() -> None:
+def test_Ad() -> None:
     f = kkt.Ad
 
     # Pravilna upotreba
@@ -335,10 +308,8 @@ def Ad_test() -> None:
          [3, 0,  0, 0, 0, -1],
          [0, 0,  0, 0, 1,  0]]
     )
-
-    _uspesan_test_funkcije_poruka("Ad")
     
-def osa_zavrtnja_parametarski_test() -> None:
+def test_osa_zavrtnja_parametarski() -> None:
     f = kkt.osa_zavrtnja_parametarski
 
     # Pravilna upotreba
@@ -407,10 +378,8 @@ def osa_zavrtnja_parametarski_test() -> None:
     # Nepravilna upotreba
     with pytest.raises(ValueError):
         assert f([1, 0, 0], [1, 0, 0], -3)
-    
-    _uspesan_test_funkcije_poruka("osa_zavrtnja_parametarski")
 
-def parametri_ose_zavrtnja_test() -> None:
+def test_parametri_ose_zavrtnja() -> None:
     f = kkt.parametri_ose_zavrtnja
     
     # Pravilna upotreba
@@ -433,10 +402,7 @@ def parametri_ose_zavrtnja_test() -> None:
     )
     assert np.allclose(f([3, 4, 12, 0, 0, 26])[2], 1.84615384615)
 
-    
-    _uspesan_test_funkcije_poruka("parametri_ose_zavrtnja")
-
-def osa_zavrtnja_lin_v_test() -> None:
+def test_osa_zavrtnja_lin_v() -> None:
     f = kkt.osa_zavrtnja_lin_v
 
     # Pravilna upotreba
@@ -457,9 +423,7 @@ def osa_zavrtnja_lin_v_test() -> None:
         [0, 0, 0, 0, 1, 0]
     )
 
-    _uspesan_test_funkcije_poruka("osa_zavrtnja_lin_v")
-
-def _proj_SO3_test() -> None:
+def test__proj_SO3() -> None:
     f = kkt._proj_SO3
 
     # Pravilna upotreba
@@ -480,10 +444,8 @@ def _proj_SO3_test() -> None:
          [ 0.81546665968,  0.57548589858,  0.06188786217],
          [ 0.27945910227, -0.29783271642, -0.91279695617]]
     )
-
-    _uspesan_test_funkcije_poruka("_proj_SO3")
     
-def _proj_so3_test() -> None:
+def test__proj_so3() -> None:
     f = kkt._proj_so3
 
     # Pravilna upotreba
@@ -495,10 +457,8 @@ def _proj_so3_test() -> None:
              [0.986,    0.0, 1.06],
              [-0.36,  -1.06,  0.0]]
     )
-
-    _uspesan_test_funkcije_poruka("_proj_so3")
     
-def _suprotan_znak_provera_test() -> None:
+def test__suprotan_znak_provera_test() -> None:
     f = kkt._suprotan_znak_provera
     
     # Pravilna upotreba
@@ -514,9 +474,7 @@ def _suprotan_znak_provera_test() -> None:
     assert not f(2.3, 2.3)
     assert not f(-2.3, -2.3)
     
-    _uspesan_test_funkcije_poruka("_suprotan_znak_provera")
-    
-def _proj_lijeva_algebra_provera_test() -> None:
+def test__proj_lijeva_algebra_provera() -> None:
     f = kkt._proj_lijeva_algebra_provera
 
     # Pravilna upotreba
@@ -547,9 +505,7 @@ def _proj_lijeva_algebra_provera_test() -> None:
                            [1, 0, -3],
                            [2, 3,  0]]))
 
-    _uspesan_test_funkcije_poruka("_proj_lijeva_algebra_provera")
-
-def proj_grupa_test() -> None:
+def test_proj_grupa() -> None:
     f = kkt.proj_grupa
 
     # Pravilna upotreba
@@ -623,9 +579,7 @@ def proj_grupa_test() -> None:
     with pytest.raises(ValueError):
         f(np.eye(3), 2.3)
 
-    _uspesan_test_funkcije_poruka("proj_grupa")
-
-def Rot_test() -> None:
+def test_Rot() -> None:
     f = kkt.Rot
 
     # Pravilna upotreba
@@ -673,10 +627,8 @@ def Rot_test() -> None:
     
     with pytest.raises(ValueError):
         assert f('x', 2.3, "asd")
-    
-    _uspesan_test_funkcije_poruka("Rot")
 
-def Trans_test() -> None:
+def test_Trans() -> None:
     f = kkt.Trans
 
     # Pravilna upotreba
@@ -688,9 +640,7 @@ def Trans_test() -> None:
          [0.0, 0.0, 0.0, 1.0]]
     )
 
-    _uspesan_test_funkcije_poruka("Trans")
-
-def homogeni_vek_test() -> None:
+def test_homogeni_vek() -> None:
     f = kkt.homogeni_vek
     
     # Pravilna upotreba
@@ -703,10 +653,8 @@ def homogeni_vek_test() -> None:
         f([[1], [2], [3]]),
         [[1], [2], [3], [1]]
     )
-    
-    _uspesan_test_funkcije_poruka("homogeni_vek")
 
-def SE3_proizvod_3D_test() -> None:
+def test_SE3_proizvod_3D() -> None:
     f = kkt.SE3_proizvod_3D
     
     # Pravilna upotreba
@@ -735,10 +683,3 @@ def SE3_proizvod_3D_test() -> None:
          [ 1],
          [ 3]]
     )
-
-    _uspesan_test_funkcije_poruka("SE3_proizvod_3D")
-
-def testiraj_sve() -> None:
-    """Testira sve objekte iz modula i obavestava o uspesnosti testa
-    """
-    _testiraj_sve(globals())

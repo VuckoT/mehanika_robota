@@ -5,39 +5,27 @@
 *** BIBLIOTEKE ***
 """
 import numpy as np
-from .. import niryo_one as n_one
-from .._alati import _testiraj_sve
+from mehanika_robota.roboti.niryo_one import niryo_one as n_one
 import pytest
-
-
-"""
-*** POMOCNE FUNKCIJE ***
-"""
-def _uspesan_test_funkcije_poruka(funkcija_naziv: str) -> None:
-    print(
-        f"TEST FUNKCIJE mr.n_one.{funkcija_naziv}: USPESAN"
-    )
 
 """
 *** TESTOVI ***
 """
-def _unutar_opsega_aktuiranja_test() -> None:
+def test__unutar_opsega_aktuiranja() -> None:
     f = n_one._unutar_opsega_aktuiranja
 
-    assert f(np.full(6, 0.0)) == True
-    assert f([0, -1, 1, 3, -0.5, 1.5]) == True
+    assert f(np.full(6, 0.0))            == True
+    assert f([0, -1, 1, 3, -0.5, 1.5])   == True
 
-    assert f(np.full(6, 10)) == False
+    assert f(np.full(6, 10))             == False
     assert f([1e6, -1, 1, 3, -0.5, 1.5]) == False
-    assert f([0, 1e6, 1, 3, -0.5, 1.5]) == False
+    assert f([0, 1e6, 1, 3, -0.5, 1.5])  == False
     assert f([0, -1, 1e6, 3, -0.5, 1.5]) == False
     assert f([0, -1, 1, 1e6, -0.5, 1.5]) == False
-    assert f([0, -1, 1, 3, 1e6, 1.5]) == False
-    assert f([0, -1, 1, 3, -0.5, 1e6]) == False
-        
-    _uspesan_test_funkcije_poruka("_unutar_opsega_aktuiranja")
+    assert f([0, -1, 1, 3, 1e6, 1.5])    == False
+    assert f([0, -1, 1, 3, -0.5, 1e6])   == False
 
-def dir_kin_test() -> None:
+def test_dir_kin() -> None:
     f = n_one.dir_kin
     
     # Pravilna upotreba
@@ -59,10 +47,8 @@ def dir_kin_test() -> None:
     # Nepravilna upotreba
     with pytest.raises(ValueError):
         assert f(np.full(6, 1e6))
-    
-    _uspesan_test_funkcije_poruka("dir_kin")
 
-def inv_kin_test() -> None:
+def test_inv_kin() -> None:
     f = n_one.inv_kin
     
     assert np.allclose(
@@ -103,10 +89,3 @@ def inv_kin_test() -> None:
           -0.10310849559,
            2.20607801820])
     )
-    
-    _uspesan_test_funkcije_poruka("inv_kin")
-
-def testiraj_sve() -> None:
-    """Testira sve objekte iz modula i obavestava o uspesnosti testa
-    """
-    _testiraj_sve(globals())

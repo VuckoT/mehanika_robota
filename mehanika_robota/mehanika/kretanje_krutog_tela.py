@@ -12,12 +12,10 @@ Preporucen nacin uvoza modula je
 """
 *** BIBLIOTEKE ***
 """
-from attr import has
-from idna import alabel
 import numpy as np
 from numpy.typing import NDArray
 from typing import Literal, Tuple, Sequence
-from . import _alati
+from ...mehanika_robota import _alati
 from collections import namedtuple
 
 """
