@@ -39,4 +39,4 @@ Thumbs.db
 # Kes memorija #
 **/__pycache__
 
-**/.vscode
+.vscode/
