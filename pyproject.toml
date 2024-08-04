@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools >= 72.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mehanika_robota"
+dynamic = ["version"]
+dependencies = [
+    "numpy",
+    "pyniryo"
+]
+requires-python = ">= 3.12"
+authors = [
+    {name = "Vuk Todorovic", email = "vuk.todorovic01@gmail.com"}
+]
+maintainers = [
+    {name = "Vuk Todorovic", email = "vuk.todorovic01@gmail.com"}
+]
+description = "Biblioteka za proracun mehanike robota"
+readme = "README.md"
+url = "https://github.com/VuckoT/mehanika_robota"
+license = {file = "LICENSE"}
+keywords = ["mehanika", "roboti", "robotika", "inverzna kinematika"]
+classifiers = [
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+    "Natural Language :: Serbian",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Education :: Testing",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]

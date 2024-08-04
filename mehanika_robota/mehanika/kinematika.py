@@ -19,8 +19,8 @@ Preporucen nacin uvoza modula je
 """
 import numpy as np
 from numpy.typing import NDArray
-from mehanika_robota.mehanika import kretanje_krutog_tela as kkt
-from mehanika_robota import _alati
+from . import kretanje_krutog_tela as kkt
+from .. import _alati
 from typing import Any, Literal, Optional, Sequence, Tuple
 from collections import namedtuple
 import warnings
