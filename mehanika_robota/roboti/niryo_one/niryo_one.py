@@ -19,10 +19,10 @@ from dataclasses import dataclass
 from collections import namedtuple
 from types import MappingProxyType
 from typing import ClassVar, Sequence, Dict, Literal, Tuple, Union
-from ... import _alati
-from ...mehanika import kinematika as kin
-from ...mehanika.kinematika import InvKinError
-from ...mehanika import kretanje_krutog_tela as kkt
+from mehanika_robota import _alati
+from mehanika_robota.mehanika import kinematika as kin
+from mehanika_robota.mehanika.kinematika import InvKinError
+from mehanika_robota.mehanika import kretanje_krutog_tela as kkt
 from itertools import product
 
 """

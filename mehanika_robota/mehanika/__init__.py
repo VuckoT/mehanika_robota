@@ -13,5 +13,7 @@ Preporucen nacin uvoza biblioteke je
 >>> import mehanika_robota as mr
 """
 
-from . import kretanje_krutog_tela
-from . import kinematika
+from mehanika_robota.mehanika import (
+    kinematika,
+    kretanje_krutog_tela
+)

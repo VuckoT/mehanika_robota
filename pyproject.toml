@@ -4,10 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mehanika_robota"
-dynamic = ["version"]
+version = "2024.8.6"
 dependencies = [
     "numpy",
-    "pyniryo"
+    "pyniryo",
+    "pytest"
 ]
 requires-python = ">= 3.12"
 authors = [
@@ -18,7 +19,6 @@ maintainers = [
 ]
 description = "Biblioteka za proracun mehanike robota"
 readme = "README.md"
-url = "https://github.com/VuckoT/mehanika_robota"
 license = {file = "LICENSE"}
 keywords = ["mehanika", "roboti", "robotika", "inverzna kinematika"]
 classifiers = [
@@ -29,3 +29,11 @@ classifiers = [
     "Topic :: Education :: Testing",
     "Topic :: Scientific/Engineering :: Mathematics",
 ]
+
+[project.urls]
+homepage = "https://github.com/VuckoT/mehanika_robota"
+documentation = "https://github.com/VuckoT/mehanika_robota"
+source = "https://github.com/VuckoT/mehanika_robota/mehanika_robota"
+
+[tool.setuptools.packages.find]
+include = ["mehanika_robota"]

@@ -1,1 +1,1 @@
-from .niryo_one import *
+from mehanika_robota.roboti.niryo_one import *
