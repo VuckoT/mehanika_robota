@@ -48,7 +48,7 @@ class NiryoOne:
         [0.0, 0.0, 0.0,      1.0]
     ], dtype=float)
     """Pocetna konfiguracija robota. Matrica iz grupe SE(3) koja sadrzi
-    orijentaciju i poziciju prihvatnice robota kada su svi zglobovi
+    orijentaciju i poziciju hvataca robota kada su svi zglobovi
     u nultoj/pocetnoj poziciji
     """
     
@@ -72,8 +72,8 @@ class NiryoOne:
         [0.0, -1.0, 0.0,    5.5e-3,      0.0,  23.7e-3],
         [1.0,  0.0, 0.0,       0.0,      0.0,      0.0]
     ], dtype=float)
-    """Matrica ciji su redovi ose zavrtnja za sve zglobove robota u koordinatama
-    prihvatnice
+    """Matrica ciji su redovi ose zavrtnja za sve zglobove robota u
+    koordinatama hvataca
     """
 
     # MappingProxyType se koristi za pravljenje konstantnih recnika
@@ -131,7 +131,9 @@ def _exp_proizvod(
         )
 
     for i in range(i):
-        exp_proizvod = exp_proizvod@kkt.exp_vek_ugao(NiryoOne.S_PROSTOR[i], teta_lista[i])
+        exp_proizvod = exp_proizvod@kkt.exp_vek_ugao(
+            NiryoOne.S_PROSTOR[i], teta_lista[i]
+        )
 
     return exp_proizvod
 
@@ -340,7 +342,8 @@ def inv_kin(
         
     Beleske
     -------
-        Algoritam primenjen je detaljno objasnjen u radu dostupnom na permalinku
+        Algoritam primenjen je detaljno objasnjen u radu dostupnom na
+        permalinku
         "https://github.com/VuckoT/mehanika_robota/blob/
         d5be8f70fab51edff40f040d621e5313220bb34d/
         Upravljanje%20Niryo%20One%20manipulatorom.pdf"
@@ -406,7 +409,7 @@ def inv_kin(
         "2-2-2": None
     }
         
-    # Odredjivanje ugla teta3###################################################
+    # Odredjivanje ugla teta3 #################################################
 
     # Vektor preseka ose zavrtnja 4, 5 i 6
     presek_ose456 = np.array(
@@ -425,7 +428,9 @@ def inv_kin(
             NiryoOne.S_PROSTOR[2],
             presek_ose456,
             presek_ose12,
-            np.linalg.norm(kkt.SE3_proizvod_3D(T1, presek_ose456) - presek_ose12)
+            np.linalg.norm(
+                kkt.SE3_proizvod_3D(T1, presek_ose456) - presek_ose12
+            )
         )
     except kin.PadenKahanError:
         raise InvKinError(
@@ -493,7 +498,7 @@ def inv_kin(
             dtype=float
         )
 
-    # Odredjivanje uglova teta1 i teta2#########################################
+    # Odredjivanje uglova teta1 i teta2 #######################################
     _teta12_proracun(pd_resenja, 1, T1, presek_ose456)
     _teta12_proracun(pd_resenja, 2, T1, presek_ose456)
     
@@ -502,7 +507,7 @@ def inv_kin(
             "Inverzna kinematika nema resenja za zadate parametre"
         )
 
-    # Odredjivanje uglova teta4 i teta5#########################################    
+    # Odredjivanje uglova teta4 i teta5 #######################################
     for grana in product((1, 2), repeat=2):
         _teta45_proracun(pd_resenja, grana, T1)
 
@@ -511,7 +516,7 @@ def inv_kin(
             "Inverzna kinematika nema resenja za zadate parametre"
         )
 
-    # Odredjivanje uglova teta6#########################################    
+    # Odredjivanje uglova teta6 ###############################################
     for grana in product((1, 2), repeat=3):
         _teta6_proracun(pd_resenja, grana, T1)
             
@@ -520,7 +525,7 @@ def inv_kin(
             "Inverzna kinematika nema resenja za zadate parametre"
         )
     
-    # Odredjivanje tacnog resenja na osnovu aproksimativnog iz `pd_resenja`#####
+    # Odredjivanje tacnog resenja na osnovu aproksimativnog iz `pd_resenja` ###
     resenja = []
     
     for pd_resenje in pd_resenja.values():
@@ -537,7 +542,7 @@ def inv_kin(
             except InvKinError:
                 pass
     
-    # Odbacivanje resenja koja su van granice aktuiranja zglobova############### 
+    # Odbacivanje resenja koja su van granice aktuiranja zglobova #############
     resenja = (tuple(
         resenje for resenje in resenja if _unutar_opsega_aktuiranja(resenje)
     ))

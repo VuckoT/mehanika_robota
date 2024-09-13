@@ -76,7 +76,9 @@ def gasenje_robota(robot: pn.NiryoRobot, izuzetak: Exception = None) -> None:
         print("Robot je uspesno ugasen")
         >>> robot = pn.NiryoRobot("169.254.200.200")
         >>> gasenje_robota(robot, ValueError)
-        print("Doslo je do neocekivane greske, proverite greske.log za detalje")
+        print(
+            "Doslo je do neocekivane greske, proverite greske.log za detalje"
+        )
     """
     ocisti_terminal()
     
@@ -104,7 +106,7 @@ def gasenje_robota(robot: pn.NiryoRobot, izuzetak: Exception = None) -> None:
 def main():   
     # Log podesavanje
     logging.basicConfig(
-        filename    = f"../log/greske.log",
+        filename    = "../log/greske.log",
         level       = logging.ERROR,
         format      = "%(asctime)s %(message)s",
         datefmt     = "Date: %d-%m-%Y   Time: %H:%M:%S"

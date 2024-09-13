@@ -71,9 +71,9 @@ def _proj_lijeva_algebra_provera(mat: NDArray) -> None:
     ):
         raise ValueError(
             "Nije moguce projektovati \"mat\" u elemenat "
-            f"\"{'so(3)' if mat.shape == (3, 3) else 'se(3)'}\" grupe. Elementi "
-            "moraju biti mat[0, 1] == -mat[1, 0], mat[0, 2] == -mat[2, 0] i "
-            "mat[1, 2] == -mat[2, 1]"
+            f"\"{'so(3)' if mat.shape == (3, 3) else 'se(3)'}\" grupe. "
+            "Elementi moraju biti mat[0, 1] == -mat[1, 0], "
+            "mat[0, 2] == -mat[2, 0] i mat[1, 2] == -mat[2, 1]"
         )
 
 """
@@ -327,8 +327,8 @@ def v_prostor_normiranje(
     vratiti_normu: bool = False
 ) -> NDArray[np.float64] | Tuple[NDArray[np.float64], np.float64]:
     """Vraca normiran vektor prostornih brzina `v_prostor`, tacnije vraca osu
-    zavrtnja. Normu/ugao rotacije takodje moze vratiti u zavisnosti od parametra
-    `vratiti_normu`
+    zavrtnja. Normu/ugao rotacije takodje moze vratiti u zavisnosti od
+    parametra `vratiti_normu`
      
     Parametri
     ---------
@@ -736,9 +736,9 @@ def osa_zavrtnja_parametarski(
     vek_kolona: bool = False
 ) -> NDArray[np.float64]:
     """Pretvara parametre `vek_ose`, `omegaS` i `korak_zavrtnja` u vektor ose
-    zavrtnja. Za slucaj kada je osa zavrtnja cisto linearno kretanje preporuceno
-    je koristiti funkciju `mr.kkt.osa_zavrtnja_lin_v()`. Razlog tome je da ce
-    ova funkcija vratiti tacno resenje samo ukoliko vazi da je
+    zavrtnja. Za slucaj kada je osa zavrtnja cisto linearno kretanje
+    preporuceno je koristiti funkciju `mr.kkt.osa_zavrtnja_lin_v()`. Razlog
+    tome je da ce ova funkcija vratiti tacno resenje samo ukoliko vazi da je
     `np.isinf(korak_zavrtnja)`
     
     Parametri
@@ -766,8 +766,8 @@ def osa_zavrtnja_parametarski(
     Greske
     ------
     ValueError
-        `vek_ose` ili `omegaS` nije dimenzije 1x3 ili 3x1. `korak_zavrtnja` nije
-        >=0
+        `vek_ose` ili `omegaS` nije dimenzije 1x3 ili 3x1. `korak_zavrtnja`
+        nije >=0
     
     Primeri
     -------
@@ -849,10 +849,10 @@ def parametri_ose_zavrtnja(
 
     vek_ose : NDArray[np.float64]
         Vektor pozicije ose zavrtnja. Odredjuje se na osnovu Mor-Penroz
-        pseudoinversa. U slucaju da je osa zavrtnja cista translacija (`korak_zavrtnja ==
-        np.inf`), onda se za vektor pozicije ose zavrtnja uzima nula vector. Cak
-        i da osa rotacija ne prolazi kroz koordinatni pocetak, nije moguce
-        odrediti poziciju ose zavrtnja.
+        pseudoinversa. U slucaju da je osa zavrtnja cista translacija
+        (`korak_zavrtnja == np.inf`), onda se za vektor pozicije ose zavrtnja
+        uzima nula vector. Cak i da osa rotacija ne prolazi kroz koordinatni
+        pocetak, nije moguce odrediti poziciju ose zavrtnja.
 
         Vektor koji dodiruje tacku ose zavrtnja. 
 
@@ -984,8 +984,8 @@ def proj_grupa(
     Parametri
     ---------
     mat : Sequence | NDArray
-        Ulazna matrica za pojektovanje. Ukoliko je projekcija na grupu so(3) ili
-        se(3), `mat `elementi `mat[0, 1]` i `mat[1, 0]`,
+        Ulazna matrica za pojektovanje. Ukoliko je projekcija na grupu so(3)
+        ili se(3), `mat `elementi `mat[0, 1]` i `mat[1, 0]`,
         `mat[0, 2]` i `mat[2, 0]`, `mat[1, 2]` i `mat[2, 1]`, moraju biti
         razlicitog znaka. Napomenuti parovi elemenata mogu biti jednaki samo
         u slucaju da su priblizno 0
@@ -1002,16 +1002,16 @@ def proj_grupa(
     -------
     SO(3) projekcija
         Projekcija se vrsi tako sto se matrica `mat` dekompozicija matrice na
-        njene singularne vrednosti i postavljaju se vrednosti dijagonalne matrice
-        da budu jednake 1.0, sto
+        njene singularne vrednosti i postavljaju se vrednosti dijagonalne
+        matrice da budu jednake 1.0, sto
          
          `U, S, V_transponovano = np.linalg.svd(mat)
          S = np.eye(3, dtype=float)
          proj_mat = U @ S @ V_transponovano = U @ V_transponovano`
         
         Vise detalja o singularnoj dekompoziciji je dato u Prilogu E od knjige
-        "Modern Robotic: Mechanics, Planning and Control", autori Kevin M. Lynch
-        i Frank C. Park. Takodje je dostupno na
+        "Modern Robotic: Mechanics, Planning and Control", autori Kevin M.
+        Lynch i Frank C. Park. Takodje je dostupno na
         https://hades.mech.northwestern.edu/index.php/Modern_Robotics
             
     SE(3) projekcija
@@ -1117,14 +1117,14 @@ def Rot(
     Parametri
     ---------
     osa_rotacije : Literal['x', 'y', 'z']
-        Osa rotacije u slucaju da je izlaz matrica iz grupe SO(3) ili pravac ose
-        zavrtnja ciji je korak jednak nuli
+        Osa rotacije u slucaju da je izlaz matrica iz grupe SO(3) ili pravac
+        ose zavrtnja ciji je korak jednak nuli
     ugao : int | float | np.int32 | np.float64
         Ugao rotacije oko ose rotacije ili oko ose zavrtnja
     grupa : Literal[3, 4], opcionalno
         Odredjuje da li je izlaz funkcije iz grupe SO(3) kada je
-        `grupa == "SO3` ili iz grupe SE(3) `grupa == "SE3"` (automatska vrednost
-        je "SE3")
+        `grupa == "SO3` ili iz grupe SE(3) `grupa == "SE3"` (automatska
+        vrednost je "SE3")
 
     Povratna vrednost
     -----------------

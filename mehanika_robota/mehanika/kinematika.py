@@ -73,13 +73,13 @@ class PadenKahanError(Exception):
         broj_podproblema : Literal[1, 2, 3]
             Redni broj Paden-Kahan podproblema
         objekat : Any, opcionalno
-            Dodatni objekat koji ima dunder __repr__ ili __str__ za dodatan opis
-            greske (automatska vrednost je None, tj. nema dodatne poruke)
+            Dodatni objekat koji ima dunder __repr__ ili __str__ za dodatan
+            opis greske (automatska vrednost je None, tj. nema dodatne poruke)
         """
-        if not broj_podproblema in (1, 2, 3):
+        if broj_podproblema not in (1, 2, 3):
             raise ValueError(
-                "Invalidan \"broj_podproblema\", postoje samo podproblemi od 1 "
-                "do 3"
+                "Invalidan \"broj_podproblema\", postoje samo podproblemi od "
+                "1 do 3"
             )
         
         if objekat is None:
@@ -106,8 +106,8 @@ def dir_kin(
     vek_kolona: bool = False
 ) -> NDArray[np.float64]:
     """Odredjuje direktnu kinematiku gde su parametri proracuna u prostornom
-    koordinatnom sistemu ili u koordinatnom sistemu zakacen za telo od interesa.
-    Proracun je namenjen za robote sa otvorenim kinematskim lancem
+    koordinatnom sistemu ili u koordinatnom sistemu zakacen za telo od
+    interesa. Proracun je namenjen za robote sa otvorenim kinematskim lancem
 
     Parametri
     ---------
@@ -125,11 +125,11 @@ def dir_kin(
         tj. svejedno je da li je `S_lista` sastavljena od ose zavrtnja, vektora
         prostornih brzina ili neke kombinacije istih
     teta_lista : Sequence | NDArray | int | float | np.int32 | np.float64
-        Spisak/lista uglova rotacije zglobova (u slucaju da neka osa predstavlja
-        iskljucivo linearno kretanje, teta za taj zglob predstavlja duzinu
-        linearnog kretanja). Dimenzije su 1xn ili nx1 gde je n broj vektora ose
-        zavrtnja  U slucaju da je `S_lista` dimenzije 6x1 ili 1x6 onda
-        `teta_lista` ne mora biti niz tipa Sequence ili NDArray
+        Spisak/lista uglova rotacije zglobova (u slucaju da neka osa
+        predstavlja iskljucivo linearno kretanje, teta za taj zglob predstavlja
+        duzinu linearnog kretanja). Dimenzije su 1xn ili nx1 gde je n broj
+        vektora ose zavrtnja  U slucaju da je `S_lista` dimenzije 6x1 ili 1x6
+        onda `teta_lista` ne mora biti niz tipa Sequence ili NDArray
     koord_sistem_prostor : bool, opcionalno
         Odredjuje da li se ose zavrtnjeva iz `S_lista` smatra da su definise u
         prostornom koordinatnom sistemu ili u koordinatnom sistemu zakacen za
@@ -195,8 +195,8 @@ def dir_kin(
     if not vek_kolona:
         S_lista = S_lista.T
         
-    # Proveri da li vektori iz `S_lista` imaju 6 komponenti i da li `teta_lista`
-    # ima elemenata koliko `S_lista` ima vektora
+    # Proveri da li vektori iz `S_lista` imaju 6 komponenti i da li
+    # `teta_lista` ima elemenata koliko `S_lista` ima vektora
     _alati._mat_provera(S_lista, (6, S_lista.shape[1]), "S_lista")
     _alati._vek_provera(teta_lista, S_lista.shape[1], "teta_lista")
         
@@ -241,10 +241,10 @@ def jakobijan(
         prostornih brzina ili neke kombinacije istih
     teta_lista : Optional[Sequence | NDArray | int | float | np.int32 |
     np.float64], opcionalno
-        Spisak/lista uglova rotacije zglobova (u slucaju da neka osa predstavlja
-        iskljucivo linearno kretanje, teta za taj zglob predstavlja duzinu
-        linearnog kretanja). Dimenzije su 1x(n - 1) ili (n - 1)x1 gde je n broj
-        vektora ose zavrtnja. U slucaju da je `len(S_lista) == 1` onda
+        Spisak/lista uglova rotacije zglobova (u slucaju da neka osa
+        predstavlja iskljucivo linearno kretanje, teta za taj zglob predstavlja
+        duzinu linearnog kretanja). Dimenzije su 1x(n - 1) ili (n - 1)x1 gde je
+        n broj vektora ose zavrtnja. U slucaju da je `len(S_lista) == 1` onda
         `teta_lista` mora biti `teta_lista == None` (automatska vrednost je
         None). Ukoliko `teta_lista` se sastoji od jednog elementa, parametar
         ne mora biti niz tipa Sequence ili NDArray
@@ -335,8 +335,8 @@ def jakobijan(
     # Ukoliko je `teta_lista` prazno, onda proveriti da li je dat iskljucivo
     # jedan vektor ose zavrtnja i upravo taj vektor predstavlja jakobijan 
     # 
-    # Provera da li vektori iz `S_lista` imaju 6 komponenti i da li `teta_lista`
-    # ima elemenata koliko `S_lista` ima vektora
+    # Provera da li vektori iz `S_lista` imaju 6 komponenti i da li 
+    # `teta_lista` ima elemenata koliko `S_lista` ima vektora
     if teta_lista is None:
         _alati._mat_provera(S_lista, (6, 1), "S_lista")
         return kkt.v_prostor_normiranje(S_lista)
@@ -388,8 +388,8 @@ def manip(
         `A = J@J.T` i sadrzi atribute:
 
     V : np.float64
-        Proporcionalna zapremina elipsoida manipulabilnosti koji je odredjen kao
-        `np.sqrt(np.linalg.det(A))`
+        Proporcionalna zapremina elipsoida manipulabilnosti koji je odredjen
+        kao `np.sqrt(np.linalg.det(A))`
 
     kond_broj : np.float64
         Kondicijski broj koji je odredjen kao `np.linalg.cond(A)`
@@ -492,8 +492,8 @@ def inv_kin(
     vek_kolona: bool = False
 ) -> NDArray[np.float64]:
     """Odredjuje inverznu kinematiku gde su parametri proracuna u prostornom
-    koordinatnom sistemu ili u koordinatnom sistemu zakacen za telo od interesa.
-    Proracun je namenjen za robote sa otvorenim kinematskim lancem
+    koordinatnom sistemu ili u koordinatnom sistemu zakacen za telo od
+    interesa. Proracun je namenjen za robote sa otvorenim kinematskim lancem
 
     Parametri
     ---------
@@ -511,12 +511,12 @@ def inv_kin(
         tj. svejedno je da li je `S_lista` sastavljena od ose zavrtnja, vektora
         prostornih brzina ili neke kombinacije istih
     teta_lista0 : Sequence | NDArray | int | float | np.int32 | np.float64
-        Spisak/lista uglova rotacije zglobova (u slucaju da neka osa predstavlja
-        iskljucivo linearno kretanje, teta za taj zglob predstavlja duzinu
-        linearnog kretanja) kao prvi nagadjaj u iterativnoj metodi. Dimenzije su
-        1xn ili nx1 gde je n broj vektora ose zavrtnja. U slucaju da je `S_lista`
-        dimenzije 6x1 ili 1x6 onda `teta_lista0` ne mora biti niz tipa Sequence
-        ili NDArray
+        Spisak/lista uglova rotacije zglobova (u slucaju da neka osa
+        predstavlja iskljucivo linearno kretanje, teta za taj zglob predstavlja
+        duzinu linearnog kretanja) kao prvi nagadjaj u iterativnoj metodi.
+        Dimenzije su 1xn ili nx1 gde je n broj vektora ose zavrtnja. U slucaju
+        da je `S_lista` dimenzije 6x1 ili 1x6 onda `teta_lista0` ne mora biti
+        niz tipa Sequence ili NDArray
     Tk : Sequence | NDArray
         SE(3) matrica konacne/zeljene konfiguracije robota
     tol_omega : float | np.float64
@@ -620,8 +620,8 @@ def inv_kin(
     if not vek_kolona:
         S_lista = S_lista.T
         
-    # Proveri da li vektori iz `S_lista` imaju 6 komponenti i da li `teta_lista`
-    # ima elemenata koliko `S_lista` ima vektora
+    # Proveri da li vektori iz `S_lista` imaju 6 komponenti i da li
+    # `teta_lista` ima elemenata koliko `S_lista` ima vektora
     _alati._mat_provera(S_lista, (6, S_lista.shape[1]), "S_lista")
     _alati._vek_provera(teta_lista, S_lista.shape[1], "teta_lista0")
         
@@ -689,10 +689,11 @@ def paden_kahan1(
     Povratna vrednost
     -----------------
     np.float64
-        Ovaj Paden-Kahanov podproblem moze jedno resenje i nijedno resenje (tada
-        se prijavljuje greska PadenKahanError). Takodje, na osnovu dobijenih
-        resenja moze se odrediti citav skup resenja koje su u korelaciji sa
-        povratnom vrednoscu ove funkcije (videti odeljak Beleske).
+        Ovaj Paden-Kahanov podproblem moze jedno resenje i nijedno resenje
+        (tada se prijavljuje greska PadenKahanError). Takodje, na osnovu
+        dobijenih resenja moze se odrediti citav skup resenja koje su u
+        korelaciji sa povratnom vrednoscu ove funkcije (videti odeljak
+        Beleske).
                 
     Beleske
     -------
@@ -799,11 +800,11 @@ def paden_kahan2(
     | Tuple[Tuple[np.float64, np.float64], Tuple[np.float64, np.float64]]
         Ovaj Paden-Kahanov podproblem moze imati jedan par resenja, dva para
         resenja i nijedno resenje (tada se prijavljuje greska PadenKahanError).
-        Takodje, na osnovu dobijenih resenja moze se odrediti citav skup resenja
-        koje su u korelaciji sa povratnom vrednoscu ove funkcije (videti odeljak
-        Beleske). U prvom slucaju je tip podataka povratne vrednosti
-        `Tuple[np.float64, np.float64]`, a u drugom je tip podataka povratne
-        vrednosti `Tuple[Tuple[np.float64, np.float64],
+        Takodje, na osnovu dobijenih resenja moze se odrediti citav skup
+        resenja koje su u korelaciji sa povratnom vrednoscu ove funkcije
+        (videti odeljak Beleske). U prvom slucaju je tip podataka povratne
+        vrednosti `Tuple[np.float64, np.float64]`, a u drugom je tip podataka
+        povratne vrednosti `Tuple[Tuple[np.float64, np.float64],
         Tuple[np.float64, np.float64]]`. Ukoliko se ose zavrtnja poklapaju
         `np.abs(osa_zavrtnja1) == np.abs(osa_zavrtnja_2)` onda funkcija vraca 1
         par resenja gde je ugao rotacije druge ose jednako nuli (videti drugi
@@ -971,8 +972,8 @@ def paden_kahan2(
                 paden_kahan1(osa_zavrtnja2, vek_pocetak, c)
             )
         else:
-            # Podproblem ima 2 para resenja za uglove teta1 i teta2 u zavisnosti
-            # od
+            # Podproblem ima 2 para resenja za uglove teta1 i teta2 u
+            # zavisnosti od
             # (c1, c2) = r
             #          + alfa*omegaS1
             #          + beta*omegaS2
@@ -1043,9 +1044,10 @@ def paden_kahan3(
         PadenKahanError). Takodje, na osnovu dobijenih resenja moze se odrediti
         citav skup resenja koje su u korelaciji sa povratnom vrednoscu ove
         funkcije (videti odeljak Beleske). U slucaju da imamo dva resenja, oba
-        resenja imaju svoj skup resenja kome pripadaju. Kada imamo jedno resenje
-        onda je tip podataka povratne vrednost `np.float64`, a kada imamo dva
-        onda je tip podataka povratne vrednosti `Tuple[np.float64, np.float64]` 
+        resenja imaju svoj skup resenja kome pripadaju. Kada imamo jedno
+        resenje onda je tip podataka povratne vrednost `np.float64`, a kada
+        imamo dva onda je tip podataka povratne vrednosti
+        `Tuple[np.float64, np.float64]`
 
     Beleske
     -------

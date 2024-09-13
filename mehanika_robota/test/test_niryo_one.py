@@ -4,8 +4,8 @@
 """
 *** BIBLIOTEKE ***
 """
-import numpy as np
 from mehanika_robota.roboti.niryo_one import niryo_one as n_one
+import numpy as np
 import pytest
 
 """
@@ -14,16 +14,16 @@ import pytest
 def test__unutar_opsega_aktuiranja() -> None:
     f = n_one._unutar_opsega_aktuiranja
 
-    assert f(np.full(6, 0.0))            == True
-    assert f([0, -1, 1, 3, -0.5, 1.5])   == True
+    assert f(np.full(6, 0.0))
+    assert f([0, -1, 1, 3, -0.5, 1.5])
 
-    assert f(np.full(6, 10))             == False
-    assert f([1e6, -1, 1, 3, -0.5, 1.5]) == False
-    assert f([0, 1e6, 1, 3, -0.5, 1.5])  == False
-    assert f([0, -1, 1e6, 3, -0.5, 1.5]) == False
-    assert f([0, -1, 1, 1e6, -0.5, 1.5]) == False
-    assert f([0, -1, 1, 3, 1e6, 1.5])    == False
-    assert f([0, -1, 1, 3, -0.5, 1e6])   == False
+    assert not f(np.full(6, 10))
+    assert not f([1e6, -1, 1, 3, -0.5, 1.5])
+    assert not f([0, 1e6, 1, 3, -0.5, 1.5])
+    assert not f([0, -1, 1e6, 3, -0.5, 1.5])
+    assert not f([0, -1, 1, 1e6, -0.5, 1.5])
+    assert not f([0, -1, 1, 3, 1e6, 1.5])
+    assert not f([0, -1, 1, 3, -0.5, 1e6])
 
 def test_dir_kin() -> None:
     f = n_one.dir_kin

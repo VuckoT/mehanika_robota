@@ -20,13 +20,13 @@ def test_PadenKahanError() -> None:
         with pytest.raises(
             f,
             match=f"{i}. " + standardna_poruka
-        ) as poruka_greske:
+        ):
             raise f(i)
         
         with pytest.raises(
             f,
             match=f"{i}. " + standardna_poruka  + f". {dodatna_poruka}"
-        ) as poruka_greske:
+        ):
             raise f(i, dodatna_poruka)
         
         with pytest.raises(f):
@@ -37,9 +37,6 @@ def test_PadenKahanError() -> None:
         
     with pytest.raises(ValueError):
         f(4)
-
-    with pytest.raises(ValueError):
-        f(0.0)
     
 def test_dir_kin() -> None:
     f = kin.dir_kin

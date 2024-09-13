@@ -57,7 +57,10 @@ def _vek_provera(
     else:
         _mat_provera(vek, [(dim, ), (dim, 1)], vek_naziv)
 
-def _tol_provera(tol: int | float | np.float64, tol_naziv: str = "tol") -> None:
+def _tol_provera(
+    tol: int | float | np.float64,
+    tol_naziv: str = "tol"
+) -> None:
     # Funkcija proverava da li je neka tolerancija veca od 0 i prikazuje gresku
     # sa imenom tolerancije `tol_naziv` ako nije
     
