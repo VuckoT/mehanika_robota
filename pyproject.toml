@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mehanika_robota"
-version = "2024.9.1"
+version = "2025.1.21"
 dependencies = [
     "numpy",
     "pyniryo",
@@ -37,7 +37,7 @@ documentation = "https://github.com/VuckoT/mehanika_robota"
 source = "https://github.com/VuckoT/mehanika_robota/mehanika_robota"
 
 [tool.setuptools.packages.find]
-include = ["mehanika_robota"]
+include = ["mehanika_robota*"]
 
 [tool.ruff]
 line-length = 79

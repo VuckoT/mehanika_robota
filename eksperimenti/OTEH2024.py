@@ -3,10 +3,11 @@
 """
 *** BIBLIOTEKE ***
 """
-from mehanika_robota import niryo_one as n_one
+from mehanika_robota.roboti import niryo_one as n_one
 import pyniryo as pn
 import os
 import logging
+from pathlib import Path
 from msvcrt import getch
 
 """
@@ -52,12 +53,7 @@ POZICIJA4 = n_one.inv_kin(
 
 """
 *** FUNKCIJE ***
-"""
-def ocisti_terminal():
-    """Cisti terminal na COMMAND.COM i cmd.exe CLI
-    """
-    os.system("cls")
-    
+""" 
 def gasenje_robota(robot: pn.NiryoRobot, izuzetak: Exception = None) -> None:
     """Procedura sigurnog gasenja robota
 
@@ -80,7 +76,6 @@ def gasenje_robota(robot: pn.NiryoRobot, izuzetak: Exception = None) -> None:
             "Doslo je do neocekivane greske, proverite greske.log za detalje"
         )
     """
-    ocisti_terminal()
     
     if izuzetak is not None:
         logging.error(
@@ -101,16 +96,17 @@ def gasenje_robota(robot: pn.NiryoRobot, izuzetak: Exception = None) -> None:
         )
     else:
         print("Robot je uspesno ugasen")
-        
 
-def main():   
+
+def main():
     # Log podesavanje
     logging.basicConfig(
-        filename    = "../log/greske.log",
+        filename    = Path(__file__).parent / "greske.log",
         level       = logging.ERROR,
         format      = "%(asctime)s %(message)s",
         datefmt     = "Date: %d-%m-%Y   Time: %H:%M:%S"
     )
+
     # Povezivanje standardnom adresom robota za Ethernet TCP/IP komunikaciju
     try:
         robot = pn.NiryoRobot(NIRYO_ONE_ETHERNET_IP)
@@ -169,5 +165,7 @@ def main():
         gasenje_robota(robot)
 
 if __name__ == "__main__":
-    ocisti_terminal()
+    # Cisti terminal na COMMAND.COM i cmd.exe CLI
+    os.system("cls")
+    
     main()
