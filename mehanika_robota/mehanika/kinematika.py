@@ -654,7 +654,7 @@ def inv_kin(
         Vb = kkt.vek_od_lijeve_algebre(kkt.log(kkt.inv(
             dir_kin(M, S_lista, teta_lista, False, True)
         ) @ Tk))
-        
+
         greska = np.linalg.norm(Vb[:3]) > tol_omega \
             or np.linalg.norm(Vb[3:]) > tol_v
 
@@ -1141,9 +1141,9 @@ def paden_kahan3(
             + np.abs(np.dot(omegaS, vek_pocetak - vek_kraj))**2
     )/(2*np.linalg.norm(u_prim)*np.linalg.norm(v_prim))
     
-    if np.isclose(cos_fi, 1.0):
+    if np.isclose(cos_fi, 1.0) and cos_fi > 1.0:
         fi = 0.0
-    elif np.isclose(cos_fi, -1.0):
+    elif np.isclose(cos_fi, -1.0) and cos_fi < -1.0:
         fi = np.pi
     else:
         # Ukoliko je pod np.arccos() vrednost van domena funkcije, zanemaricemo
