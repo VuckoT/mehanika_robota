@@ -521,10 +521,10 @@ def log(mat: Sequence | NDArray) -> NDArray[np.float64]:
     # teta = arccos(cos(teta)) dobijamo np.nan, zato mora na malo drugaciji
     # nacin da se pristupi proracunu ugla teta
     cos_teta = (np.trace(R) - 1)/2
-    
-    if np.isclose(cos_teta, 1.0):
+
+    if np.isclose(cos_teta, 1.0) and cos_teta > 1.0:
         teta = 0.0
-    elif np.isclose(cos_teta, -1.0):
+    elif np.isclose(cos_teta, -1.0) and cos_teta < -1.0:
         teta = np.pi
     else:
         teta = np.arccos(cos_teta)
