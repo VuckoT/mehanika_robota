@@ -78,18 +78,18 @@ class NiryoOne:
 
     # MappingProxyType se koristi za pravljenje konstantnih recnika
     TETA_OPSEG: ClassVar[namedtuple] = MappingProxyType({
-            "1_min": np.float64(-3.04),
-            "1_max": np.float64( 3.04),
-            "2_min": np.float64(-1.90),
-            "2_max": np.float64( 0.63),
-            "3_min": np.float64(-1.38),
-            "3_max": np.float64( 1.56),
-            "4_min": np.float64(-3.04),
-            "4_max": np.float64( 3.04),
-            "5_min": np.float64(-1.73),
-            "5_max": np.float64( 1.91),
-            "6_min": np.float64(-2.52),
-            "6_max": np.float64( 2.52)
+            "1_min": np.float64(-3.05432619099),
+            "1_max": np.float64( 3.05432619099),
+            "2_min": np.float64(-1.91008833338),
+            "2_max": np.float64(0.640012236706),
+            "3_min": np.float64(-1.39434353942),
+            "3_max": np.float64( 1.57009819509),
+            "4_min": np.float64(-3.05013740079),
+            "4_max": np.float64( 3.05432619099),
+            "5_min": np.float64(-1.74532925199),
+            "5_max": np.float64( 1.92003671012),
+            "6_min": np.float64(-2.53002928369),
+            "6_max": np.float64( 2.53002928369)
     })
     """Recnik koji sadrzi opsege i-tog zgloba u obliku TETA_OPSEG["i_min"]
     ili TETA_OPSEG["i_max"] gde je "i" oznacava redni broj zgloba. Zbog 
