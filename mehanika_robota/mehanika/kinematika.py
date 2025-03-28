@@ -60,7 +60,7 @@ class InvKinError(Exception):
     pass
 
 class PadenKahanError(Exception):
-    """Greska kada neki Paden-Kahan podproblem nema resenja
+    """Greska kada neki Paden-Kahanov podproblem nema resenja
     """
     def __init__(
         self,
@@ -71,7 +71,7 @@ class PadenKahanError(Exception):
         f"{broj_podproblema}. Paden-Kahanov podproblem nema resenja. {objekat}"
         
         broj_podproblema : Literal[1, 2, 3]
-            Redni broj Paden-Kahan podproblema
+            Redni broj Paden-Kahanovog podproblema
         objekat : Any, opcionalno
             Dodatni objekat koji ima dunder __repr__ ili __str__ za dodatan
             opis greske (automatska vrednost je None, tj. nema dodatne poruke)
@@ -88,6 +88,43 @@ class PadenKahanError(Exception):
         else:
             self._poruka =  f"{broj_podproblema}. " \
                 + "Paden-Kahanov podproblem nema resenja. " \
+                + f"{objekat}"
+            
+        super().__init__(self._poruka)
+        
+    def __repr__(self) -> str:
+        return self._poruka
+
+class PardosGotorError(Exception):
+    """Greska kada neki Pardos-Gotor podproblem nema resenja
+    """
+    def __init__(
+        self,
+        broj_podproblema: Literal[1, 2, 3],
+        objekat: Optional[Any] = None
+    ) -> None:
+        """Poruka greske u formatu:
+        f"{broj_podproblema}."
+        f"Pardos-Gotorov podproblem nema resenja. {objekat}"
+        
+        broj_podproblema : Literal[1, 2, 3]
+            Redni broj Pardos-Gotorovog podproblema
+        objekat : Any, opcionalno
+            Dodatni objekat koji ima dunder __repr__ ili __str__ za dodatan
+            opis greske (automatska vrednost je None, tj. nema dodatne poruke)
+        """
+        if broj_podproblema not in (1, 2, 3):
+            raise ValueError(
+                "Invalidan \"broj_podproblema\", postoje samo podproblemi od "
+                "1 do 3"
+            )
+        
+        if objekat is None:
+            self._poruka =  f"{broj_podproblema}. " \
+                + "Pardos-Gotorov podproblem nema resenja"
+        else:
+            self._poruka =  f"{broj_podproblema}. " \
+                + "Pardos-Gotorov podproblem nema resenja. " \
                 + f"{objekat}"
             
         super().__init__(self._poruka)
@@ -689,9 +726,9 @@ def paden_kahan1(
     Povratna vrednost
     -----------------
     np.float64
-        Ovaj Paden-Kahanov podproblem moze jedno resenje i nijedno resenje
-        (tada se prijavljuje greska PadenKahanError). Takodje, na osnovu
-        dobijenih resenja moze se odrediti citav skup resenja koje su u
+        Ovaj Paden-Kahanov podproblem moze imati jedno resenje i nijedno
+        resenje (tada se prijavljuje greska PadenKahanError). Takodje, na
+        osnovu dobijenih resenja moze se odrediti citav skup resenja koje su u
         korelaciji sa povratnom vrednoscu ove funkcije (videti odeljak
         Beleske).
                 
@@ -778,7 +815,8 @@ def paden_kahan2(
     | Tuple[Tuple[np.float64, np.float64], Tuple[np.float64, np.float64]]:
     """Resava 2. Paden-Kahanov podproblem rotacije tacke `vek_pocetak` oko
     dve ose zavrtnja (koje su ciste rotacije, `korak == 0`) za odredjene uglove
-    do tacke `vek_kraj`
+    do tacke `vek_kraj`. Takodje, resava podproblem i u slucaju da se ose
+    zavrtnja ne presecaju ali jesu paralelne
 
     Parametri
     ---------
@@ -786,9 +824,9 @@ def paden_kahan2(
         Prva osa zavrtnja oko koje treba rotirati tacku `vek_pocetak`. Vektor
         ne mora biti normalizovan i korak ose zavrtnja mora biti 0
     osa_zavrtnja2 : Sequence | NDArray
-        Prva osa zavrtnja oko koje treba rotirati tacku nakon prve rotacije oko
-        ose `osa_zavrtnja1` do tacke `vek_kraj`. Vektor ne mora biti
-        normalizovan i korak ose zavrtnja mora biti 0    
+        Druga osa zavrtnja oko koje treba rotirati tacku nakon prve rotacije
+        oko prve ose zavrtnja. Vektor ne mora biti normalizovan i korak ose
+        zavrtnja mora biti 0    
     vek_pocetak : Sequence | NDArray
         Pocetna tacka rotacije cije su dimenzije 1x3 ili 3x1
     vek_kraj : Sequence | NDArray
@@ -806,13 +844,15 @@ def paden_kahan2(
         vrednosti `Tuple[np.float64, np.float64]`, a u drugom je tip podataka
         povratne vrednosti `Tuple[Tuple[np.float64, np.float64],
         Tuple[np.float64, np.float64]]`. Ukoliko se ose zavrtnja poklapaju
-        `np.abs(osa_zavrtnja1) == np.abs(osa_zavrtnja_2)` onda funkcija vraca 1
-        par resenja gde je ugao rotacije druge ose jednako nuli (videti drugi
-        primer u odeljku Primeri). U sustini, u ovom slucaju, svaka kombinacija
-        uglova rotacije koja zadovoljava `teta = teta1 +- teta2` je validno
-        resenje. Npr. ako je resenje `(np.pi/4, 0)` onda su podjednako valdina
+        `osa_zavrtnja1 == osa_zavrtnja_2 or osa_zavrtnja1 == -osa_zavrtnja_2`
+        onda funkcija vraca 1 par resenja gde je ugao rotacije druge ose
+        jednako nuli (videti drugi primer u odeljku Primeri). U sustini, u ovom
+        slucaju, svaka kombinacija uglova rotacije koja zadovoljava
+        `teta = teta1 +- teta2` je validno resenje. Npr. ako je resenje
+        `(np.pi/4, 0)` onda su podjednako valdina
         resenja `(0, np.pi/4)`, `(np.pi/8, np.pi/8)`, `(np.pi/2, -np.pi/4)`,
-        itd. 
+        itd. Resenje takodje postoji ukoliko su ose zavrtnja paralelne i to cak
+        i kada su odvojene. 
 
     Beleske
     -------
@@ -823,14 +863,19 @@ def paden_kahan2(
         0+-*2*k*np.pi), (np.pi+-*2*k*np.pi, np.pi/3+-*2*k*np.pi))` takodje
         resenje podproblema. U slucaju da imamo jedan par resenja onda vazi da
         je `(teta1+-*2*k*np.pi, teta2+-*2*k*np.pi)` podjednako validno resenje
-        podproblema
+        podproblema. Vise informacija o dopunjenom 2. Paden-Kahanovom
+        podproblemu za slucaj kada su ose zavrtnja paralelne se mogu naci u
+        radu: Dimovski I., Trompeska M., Samak S., Dukovski V., Cvetkoska D.,
+        "Algorithmic Approach to Geometric Solution of Generalized Paden-Kahan
+        Subproblem and its Extension", International Journal of Advanced
+        Robotic Systems 15(1), 2018.
 
     Greske
     ------
     ValueError
         Dimenzije unetih vektora su nepravilne. Ose zavrtnja nisu ciste
-        rotacije, tj. koraci nisu jednaki nuli. Ose zavrtnja se nit presecaju
-        nit poklapaju
+        rotacije, tj. koraci nisu jednaki nuli. Ose zavrtnja se ne presecaju,
+        poklapaju i nisu paralelne
     PadenKahanError
         Paden-Kahanov podproblem nema resenja za zadate parametre
         
@@ -867,6 +912,23 @@ def paden_kahan2(
         [1, -1, 0]
     )
     (np.float64(1.571), np.float64(0.0))
+    >>> paden_kahan2(
+        [0, 0, 1, 3, 5, 0],
+        [0, 0, 1, 3, 0, 0],
+        [ 0, 3, 0],
+        [-5, 8, 0]
+    )
+    (np.float64(1.571), np.float64(0.0))
+    >>> paden_kahan2(
+        [0, 0, 1, 3, 5, 0],
+        [0, 0, 1, 3, 0, 0],
+        [ 3, 3, 0],
+        [-8, 3, 0]
+    )
+    (
+        (np.float64(-2.556), np.float64(3.727)),
+        (np.float64( 2.559), np.float64(2.559))
+    )
     """
     osa_zavrtnja1 = np.array(osa_zavrtnja1, dtype=float)
     osa_zavrtnja2 = np.array(osa_zavrtnja2, dtype=float)
@@ -904,7 +966,9 @@ def paden_kahan2(
         )
         
     # Prema jednacini <a, b> = ||a||*||b||*cos(a, b) dobijamo da ukoliko je
-    # a == b ili a == -b sledi da je, |<a, b>| = ||a||*||b||
+    # a == b ili a == -b sledi da je, |<a, b>| = ||a||*||b||. Ako smatramo da
+    # je a == osa_zavrtnja1 i b == osa_zavrtnja_2, Paden-Kahan 2 mozemo svesti
+    # na Paden-Kahan 1 jer su ose zavrtnja kolinearne
     if np.isclose(
         np.abs(np.dot(osa_zavrtnja1, osa_zavrtnja2)),
         np.linalg.norm(osa_zavrtnja1)*np.linalg.norm(osa_zavrtnja2)
@@ -927,86 +991,208 @@ def paden_kahan2(
     
     r = vek_ose1 - ksi[0]*omegaS1
     
-    if not np.allclose(r, vek_ose2 - ksi[1]*omegaS2):
-        raise ValueError("Ose zavrtnja 1 i 2 se ne presecaju")
-    
-    u = vek_pocetak - r
-    v = vek_kraj - r
-    
-    alfa = (
-        np.dot(omegaS1, omegaS2)*(np.dot(omegaS2, u)) - np.dot(omegaS1, v)
-    )/(
-        np.dot(omegaS1, omegaS2)**2 - 1
-    )
-
-    beta = (
-        np.dot(omegaS1, omegaS2)*(np.dot(omegaS1, v)) - np.dot(omegaS2, u)
-    )/(
-        np.dot(omegaS1, omegaS2)**2 - 1
-    )
-
-    # Ukoliko je pod korenom negativna vrednost, zanemaricemo poruku upozorenja
-    # i objaviti gresku PadenKahanError(2)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RuntimeWarning)        
-        gama = np.sqrt(
-            (
-                np.linalg.norm(u)**2
-                - alfa*(alfa + 2*beta*np.dot(omegaS1, omegaS2))
-                - beta**2
-            )
-        )/np.linalg.norm(np.cross(omegaS1, omegaS2))
-
-    if np.isnan(gama):
-        raise PadenKahanError(2)
-
     try:
-        # S obzirom da za male numericke vrednost od gamma**2, kvadratni koren
-        # znacajno povecava gresku ukoliko nam je vrednost blizu 0, povecavamo
-        # toleranciju za funkciju np.isclose()
-        if np.isclose(gama, 0.0, 1e-3, 1e-4):
-            # Podproblem ima 1 par resenja jer je gama == 0
-            c = r + alfa*omegaS1 + beta*omegaS2
-            return (
-                paden_kahan1(-osa_zavrtnja1, vek_kraj, c),
-                paden_kahan1(osa_zavrtnja2, vek_pocetak, c)
-            )
-        else:
-            # Podproblem ima 2 para resenja za uglove teta1 i teta2 u
-            # zavisnosti od
-            # (c1, c2) = r
-            #          + alfa*omegaS1
-            #          + beta*omegaS2
-            #          +- gama*||omegaS1 x omegaS2||
-            # gde za c1 imamo jedan par resenja i za c2 imamo drugi par
-            # resenja
-            c = r + alfa*omegaS1 + beta*omegaS2
-            return (
-                (
-                    paden_kahan1(
-                        -osa_zavrtnja1,
-                        vek_kraj,
-                        c + gama*np.cross(omegaS1, omegaS2)
-                    ),
-                    paden_kahan1(
-                        osa_zavrtnja2,
-                        vek_pocetak,
-                        c + gama*np.cross(omegaS1, omegaS2)
+        # Provera da li se ose zavrtnja presecaju
+        if np.allclose(r, vek_ose2 - ksi[1]*omegaS2):
+            u = vek_pocetak - r
+            v = vek_kraj - r
+            
+            alfa = (
+                np.dot(omegaS1, omegaS2)
+                *np.dot(omegaS2, u)
+                - np.dot(omegaS1, v)
+            )/(np.dot(omegaS1, omegaS2)**2 - 1)
+
+            beta = (
+                np.dot(omegaS1, omegaS2)
+                *np.dot(omegaS1, v)
+                - np.dot(omegaS2, u)
+            )/(np.dot(omegaS1, omegaS2)**2 - 1)
+
+            # Ukoliko je pod korenom negativna vrednost, zanemaricemo poruku
+            # upozorenja i objaviti gresku PadenKahanError(2)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)        
+                gama = np.sqrt(
+                    (
+                        np.linalg.norm(u)**2
+                        - alfa*(alfa + 2*beta*np.dot(omegaS1, omegaS2))
+                        - beta**2
                     )
-                ),
-                (
-                    paden_kahan1(
-                        -osa_zavrtnja1,
-                        vek_kraj,
-                        c - gama*np.cross(omegaS1, omegaS2)
+                )/np.linalg.norm(np.cross(omegaS1, omegaS2))
+
+            if np.isnan(gama):
+                raise PadenKahanError(2)
+
+            # S obzirom da za male numericke vrednost od gamma**2, kvadratni
+            # koren znacajno povecava gresku ukoliko nam je vrednost blizu 0,
+            # povecavamo toleranciju za funkciju np.isclose()
+            if np.isclose(gama, 0.0, 1e-3, 1e-4):
+                # Podproblem ima 1 par resenja jer je gama == 0
+                c = r + alfa*omegaS1 + beta*omegaS2
+                return (
+                    paden_kahan1(-osa_zavrtnja1, vek_kraj, c),
+                    paden_kahan1(osa_zavrtnja2, vek_pocetak, c)
+                )
+            else:
+                # Podproblem ima 2 para resenja za uglove teta1 i teta2 u
+                # zavisnosti od
+                # (c1, c2) = r
+                #          + alfa*omegaS1
+                #          + beta*omegaS2
+                #          +- gama*||omegaS1 x omegaS2||
+                # gde za c1 imamo jedan par resenja i za c2 imamo drugi par
+                # resenja
+                c = r + alfa*omegaS1 + beta*omegaS2
+                return (
+                    (
+                        paden_kahan1(
+                            -osa_zavrtnja1,
+                            vek_kraj,
+                            c + gama*np.cross(omegaS1, omegaS2)
+                        ),
+                        paden_kahan1(
+                            osa_zavrtnja2,
+                            vek_pocetak,
+                            c + gama*np.cross(omegaS1, omegaS2)
+                        )
                     ),
-                    paden_kahan1(
-                        osa_zavrtnja2,
-                        vek_pocetak,
-                        c - gama*np.cross(omegaS1, omegaS2)
+                    (
+                        paden_kahan1(
+                            -osa_zavrtnja1,
+                            vek_kraj,
+                            c - gama*np.cross(omegaS1, omegaS2)
+                        ),
+                        paden_kahan1(
+                            osa_zavrtnja2,
+                            vek_pocetak,
+                            c - gama*np.cross(omegaS1, omegaS2)
+                        )
                     )
                 )
+        
+        # Koristeci istu logiku kao u prethodnim linijama koda u istoj funkciji
+        # za odredjivanje da li je osa_zavrtnja1 == osa_zavrtnja2 ili
+        # osa_zavrtnja1 == -osa_zavrtnja2, odredicemo da li su ose zavrtnja
+        # paralelne
+        elif np.isclose(
+            np.abs(np.dot(omegaS1, omegaS2)),
+            np.linalg.norm(omegaS1)*np.linalg.norm(omegaS2)
+        ):
+            # Tacka oko koje se rotira vektor vek_pocetak nakon rotacije oko
+            # prve ose zavrtnja. Korespondira rotaciji oko ose_zavrtnja1
+            centar_rotacije1 = vek_ose1 \
+            + _vek_proj3(vek_kraj - vek_ose1, omegaS1)
+            
+            # Prvi glavni uslov postojanja resenja podproblema
+            if not np.isclose(
+                np.dot(omegaS1, vek_pocetak - centar_rotacije1),
+                0.0
+            ):
+                raise PadenKahanError(2)
+            
+            delta = np.linalg.norm(vek_kraj - centar_rotacije1)
+            
+            u = vek_pocetak - vek_ose2
+            
+            u_prim = (
+                vek_pocetak
+                - vek_ose2
+                - _vek_proj3(vek_pocetak - vek_ose2, omegaS1)
             )
+            
+            v_prim = (
+                centar_rotacije1
+                - vek_ose2
+                - _vek_proj3(centar_rotacije1 - vek_ose2, omegaS1)
+            )
+            
+            # Drugi glavni uslov postojanja resenja podproblema
+            if np.abs(
+                np.linalg.norm(u_prim)**2
+                + np.linalg.norm(v_prim)**2
+                - delta**2
+            ) > 2*np.linalg.norm(u_prim)*np.linalg.norm(v_prim):
+                raise PadenKahanError(2)
+
+            if np.allclose(u_prim, np.zeros_like(u_prim)):
+                if not np.isclose(
+                    delta,
+                    np.linalg.norm(vek_pocetak - centar_rotacije1)
+                ):
+                    raise PadenKahanError(2)
+                
+                # U ovom slucaju postoje beskonacno mnogo resenja za drugi
+                # ugao, tj. resenje za drugi ugao je bilo koji broj iz skupa
+                # realnih brojeva
+                else:
+                    return (
+                        paden_kahan1(osa_zavrtnja1, vek_pocetak, vek_kraj),
+                        np.float64(0.0)
+                    )
+            
+            # U ovom slucaju postoje beskonacno mnogo resenja za prvi ugao, tj.
+            # resenje za prvi ugao je bilo koji broj iz skupa realnih brojeva
+            if np.isclose(delta, 0.0):
+                return (
+                    np.float64(0.0),
+                    paden_kahan3(
+                        osa_zavrtnja2,
+                        vek_pocetak,
+                        centar_rotacije1,
+                        0.0
+                    )
+                )
+                
+            ugao2 = paden_kahan3(
+                osa_zavrtnja2,
+                vek_pocetak,
+                centar_rotacije1,
+                delta
+            )
+
+            if isinstance(ugao2, tuple):
+                return (
+                    (
+                        paden_kahan1(
+                            osa_zavrtnja1,
+                            kkt.SE3_proizvod_3D(
+                                kkt.exp_vek_ugao(osa_zavrtnja2, ugao2[0]),
+                                vek_pocetak
+                            ),
+                            vek_kraj
+                        ),
+                        ugao2[0]
+                    ),
+                    (
+                        paden_kahan1(
+                            osa_zavrtnja1,
+                            kkt.SE3_proizvod_3D(
+                                kkt.exp_vek_ugao(osa_zavrtnja2, ugao2[1]),
+                                vek_pocetak
+                            ),
+                            vek_kraj
+                        ),
+                        ugao2[1]
+                    )
+                )
+            else:
+                return (
+                    paden_kahan1(
+                        osa_zavrtnja1,
+                        kkt.SE3_proizvod_3D(
+                            kkt.exp_vek_ugao(osa_zavrtnja2, ugao2),
+                            vek_pocetak
+                        ),
+                        vek_kraj
+                    ),
+                    ugao2
+                )
+        else:
+            raise ValueError(
+                "Ose zavrtnja 1 i 2 se ne presecaju i nisu paralelne"
+            )
+    
     except PadenKahanError:
         # paden_kahan1() moze prijaviti gresku PadenKahanError(1), a zelimo da
         # korisnik vidi PadenKahanError(2)
@@ -1019,19 +1205,19 @@ def paden_kahan3(
     delta: float | np.float64
 ) -> np.float64 | Tuple[np.float64, np.float64]:
     """Resava 3. Paden-Kahanov podproblem rotacije tacke `vek_pocetak` oko
-    dve ose zavrtnja (koja je cista rotacija, `korak == 0`) za odredjeni ugao
+    ose zavrtnja (koja je cista rotacija, `korak == 0`) za odredjeni ugao
     tako da je udaljena za `delta` od tacke `vek_kraj`
     
     Parametri
     ---------
     osa_zavrtnja : Sequence | NDArray
-        Osa zavrtnja oko koje treba rotirati tacku `vek_pocetak` do tacke
-        `vek_kraj`. Vektor ne mora biti normalizovan i korak ose zavrtnja mora
-        biti 0
+        Osa zavrtnja oko koje treba rotirati tacku `vek_pocetak` do tacke koja
+        je udaljena od `vek_kraj` za `delta`. Vektor ne mora biti normalizovan
+        i korak ose zavrtnja mora biti 0
     vek_pocetak : Sequence | NDArray
         Pocetna tacka rotacije cije su dimenzije 1x3 ili 3x1
     vek_kraj : Sequence | NDArray
-        Krajnja tacka rotacije cije su dimenzije 1x3 ili 3x1
+        Druga tacka rotacije cije su dimenzije 1x3 ili 3x1
     delta : float | np.float64
         Distanca izmedju rotirate tacke `vek_pocetak` oko ose `osa_zavrtnja` i
         tacke `vek_kraj`
@@ -1100,7 +1286,12 @@ def paden_kahan3(
     np.float64(1.571)
     """
     if np.isclose(delta, 0.0):
-        return paden_kahan1(osa_zavrtnja, vek_pocetak, vek_kraj)
+        try:
+            return paden_kahan1(osa_zavrtnja, vek_pocetak, vek_kraj)
+        except PadenKahanError:
+            # paden_kahan1() moze prijaviti gresku PadenKahanError(1), a zelimo
+            # da korisnik vidi PadenKahanError(3)
+            raise PadenKahanError(3) from None
     elif delta < 0.0:
         raise ValueError("Parametar duzine \"delta\" mora biti >= 0")
     
@@ -1206,3 +1397,435 @@ def paden_kahan3(
             raise PadenKahanError(3)
 
     return teta
+
+def pardos_gotor1(
+    osa_zavrtnja: Sequence | NDArray,
+    vek_pocetak: Sequence | NDArray,
+    vek_kraj: Sequence | NDArray
+) -> np.float64:
+    """Resava 1. Pardos-Gotorov podproblem rotacije tacke `vek_pocetak` duz
+    ose zavrtnja (koja je cista translacija,
+    `np.linalg.norm(osa_zavrtnja[:3]) == 0.0`) za vrednost do tacke `vek_kraj`
+
+    Parametri
+    ----------
+    osa_zavrtnja : Sequence | NDArray
+        Osa zavrtnja duz koje treba translirati tacku `vek_pocetak` do tacke
+        `vek_kraj`. Vektor ne mora biti normalizovan i vektor ose rotacije od
+        ose zavrtnja mora biti nulti vektor
+    vek_pocetak : Sequence | NDArray
+        Pocetna tacka translacije cije su dimenzije 1x3 ili 3x1
+    vek_kraj : Sequence | NDArray
+        Krajnja tacka translacije cije su dimenzije 1x3 ili 3x1
+
+    Povratna vrednost
+    -----------------
+    np.float64
+        Ovaj Pardos-Gotorov podproblem moze imati jedno resenje i nijedno
+        resenje (tada se prijavljuje greska PardosGotorError)
+
+    Beleske
+    -------
+    Vise detalja o Pardos-Gotorovim podproblemima su dostupni na: Pardos-Gotor
+    J., "Screw Theory in Robotics: an Illustrated and Practicable Introduction
+    to Modern Mechanics", CRC Press, USA, 2022.
+    
+    Greske
+    ------
+    ValueError
+        Dimenzije unetih vektora su nepravilne. Osa zavrtnja nije cista
+        translacija, tj. njena osa rotacije nije jednaka nultom vektoru
+    PardosGotorError
+        Pardos-Gotorov podproblem nema resenja za zadate parametre
+
+    Primeri
+    -------
+    >>> pardos_gotor1(
+        [0, 0, 0, 1, 0, 0],
+        [1, 1, 0],
+        [4, 1, 0]
+    )
+    np.float64(3.000)
+    >>> pardos_gotor1(
+        [[0],
+         [0],
+         [0],
+         [4],
+         [0],
+         [0]],
+        [1, 1, 0],
+        [[1],
+         [1],
+         [0]]
+    )
+    np.float64(0.000)
+    """
+    osa_zavrtnja = np.array(osa_zavrtnja, dtype=float)
+    vek_pocetak = np.array(vek_pocetak, dtype=float)
+    vek_kraj = np.array(vek_kraj, dtype=float)
+
+    _alati._vek_provera(osa_zavrtnja, 6, "osa_zavrtnja")
+    _alati._vek_provera(vek_pocetak, 3, "vek_pocetak")
+    _alati._vek_provera(vek_kraj, 3, "vek_kraj")
+
+    # Potrebni su vektori red za proracun
+    vek_pocetak = vek_pocetak.reshape(3)
+    vek_kraj = vek_kraj.reshape(3)
+    osa_zavrtnja = kkt.v_prostor_normiranje(osa_zavrtnja).reshape(6)
+    
+    if not np.isclose(np.linalg.norm(osa_zavrtnja[:3]), 0.0):
+        raise ValueError(
+            "Osa zavrtnja nije translacija rotacija. Osa rotacije ose "
+            "zavrtnja mora biti nulti vektor"
+        )
+    
+    resenje = np.dot(osa_zavrtnja[3:], vek_kraj - vek_pocetak)
+    
+    # S obzirom na izvor odakle je uzeto resenje, nisu navedeni uslovi
+    # postojanja podproblema, prema temo cemo proveriti resenja na osnovu
+    # glavne jednacine:
+    # kkt.SE3_proizvod_3D(kkt.exp_vek_ugao(osa_zavrtnja, resenje), vek_pocetak)
+    # == vek_kraj
+    # Sto se drugacije moze napisati kao
+    # resenje*osa_zavrtnja.reshape[3:] + vek_pocetak == vek_kraj
+    # zato sto je osa zavrtnja cista translacija
+    if np.allclose(
+        resenje*osa_zavrtnja[3:] + vek_pocetak,
+        vek_kraj
+    ):
+        return resenje
+    else:
+        raise PardosGotorError(1)
+
+def pardos_gotor2(
+    osa_zavrtnja1: Sequence | NDArray,
+    osa_zavrtnja2: Sequence | NDArray,
+    vek_pocetak: Sequence | NDArray,
+    vek_kraj: Sequence | NDArray
+) -> Tuple[np.float64, np.float64]:
+    """Resava 2. Pardos-Gotorov podproblem translacije tacke `vek_pocetak` duz
+    dve ose zavrtnja (koje su ciste translacije,
+    `np.linalg.norm(osa_zavrtnja[:3]) == 0.0`) za odredjene vrednosti do tacke
+    `vek_kraj`. Takodje, resava podproblem i u slucaju da se ose zavrtnja ne
+    presecaju ali jesu paralelne
+
+    Parametri
+    ---------
+    osa_zavrtnja1 : Sequence | NDArray
+        Prva osa zavrtnja duz koje treba translirati tacku `vek_pocetak`.
+        Vektor ne mora biti normalizovan i osa rotacije ose zavrtnja mora biti
+        nulti vektor
+    osa_zavrtnja2 : Sequence | NDArray
+        Druga osa zavrtnja duz koje treba translirati tacku `vek_pocetak` nakon
+        prve translacije duz prve ose zavrtnja. Vektor ne mora biti
+        normalizovan i osa rotacije ose zavrtnja mora biti nulti vektor
+    vek_pocetak : Sequence | NDArray
+        Pocetna tacka translacije cije su dimenzije 1x3 ili 3x1
+    vek_kraj : Sequence | NDArray
+        Krajnja tacka translacije cije su dimenzije 1x3 ili 3x1
+    
+    Povratna vrednost
+    -----------------
+    Tuple[np.float64, np.float64]
+        Ovaj Pardos-Gotorov podproblem moze imati jedan par resenja i nijedno
+        resenje (tada se prijavljuje greska PardosGotorError). Ukoliko se ose
+        zavrtnja poklapaju `osa_zavrtnja1 == osa_zavrtnja_2 or
+        osa_zavrtnja1 == -osa_zavrtnja_2` onda funkcija vraca par resenja gde
+        je vrednost translacije duz druge ose jednako nuli (videti drugi
+        primer u odeljku Primeri) ali svaka vrednost iz skupa realnih brojeva 
+        predstavlja resenje za drugu vrednost translacije. Npr. ako je resenje
+        `(3.0, 0)` onda su podjednako valdina resenja `(3.0, -12)`, `(3.0, 3)`,
+        `(3.0, 3.0)`, itd. 
+
+    Beleske
+    -------
+    Vise detalja o Pardos-Gotorovim podproblemima su dostupni na: Pardos-Gotor
+    J., "Screw Theory in Robotics: an Illustrated and Practicable Introduction
+    to Modern Mechanics", CRC Press, USA, 2022.
+
+    Greske
+    ------
+    ValueError
+        Dimenzije unetih vektora su nepravilne. Ose zavrtnja nisu ciste
+        translacije, tj. ose rotacije ose zavrtnja nisu nulti vektori. Ose
+        zavrtnja se ne presecaju, poklapaju i nisu paralelne
+    PardosGotorError
+        Pardos-Gotorov podproblem nema resenja za zadate parametre
+        
+    Primeri
+    -------
+    >>> pardos_gotor2(
+        [0, 0, 0, 1, 0, 0],
+        [[0],
+         [0],
+         [0],
+         [np.sqrt(2)/2],
+         [np.sqrt(2)/2],
+         [0]],
+        [0, 1, 0],
+        [[2],
+         [2],
+         [0]]
+    )
+    (np.float64(1.0), np.float64(1.414))
+    >>> pardos_gotor2(
+            [0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 0, 0],
+            [1, 0, 0],
+            [4, 0, 0]
+    )
+    (np.float64(3.0), np.float64(0.0))
+    >>> pardos_gotor2(
+        [0, 0, 0, 1, 1, 0],
+        [0, 0, 0, 1, 0, 0],
+        [2, 0, 0],
+        [1, 0, 0]
+    )
+    (np.float64(0.0), np.float64(-1.0))
+    """
+    osa_zavrtnja1 = np.array(osa_zavrtnja1, dtype=float)
+    osa_zavrtnja2 = np.array(osa_zavrtnja2, dtype=float)
+    vek_pocetak = np.array(vek_pocetak, dtype=float)
+    vek_kraj = np.array(vek_kraj, dtype=float)
+
+    _alati._vek_provera(osa_zavrtnja1, 6, "osa_zavrtnja1")
+    _alati._vek_provera(osa_zavrtnja2, 6, "osa_zavrtnja2")
+    _alati._vek_provera(vek_pocetak, 3, "vek_pocetak")
+    _alati._vek_provera(vek_kraj, 3, "vek_kraj")
+    
+    # Potrebni su vektori red za proracun
+    vek_pocetak = vek_pocetak.reshape(3)
+    vek_kraj = vek_kraj.reshape(3)
+    osa_zavrtnja1 = osa_zavrtnja1.reshape(6)
+    osa_zavrtnja2 = osa_zavrtnja2.reshape(6)
+
+    osa_zavrtnja1 = kkt.v_prostor_normiranje(osa_zavrtnja1)
+    osa_zavrtnja2 = kkt.v_prostor_normiranje(osa_zavrtnja2)
+    
+    if not np.isclose(np.linalg.norm(osa_zavrtnja1[:3]), 0.0):
+        raise ValueError(
+            "Osa zavrtnja nije translacija rotacija. Osa rotacije ose "
+            "zavrtnja mora biti nulti vektor"
+        )
+    
+    if not np.isclose(np.linalg.norm(osa_zavrtnja2[:3]), 0.0):
+        raise ValueError(
+            "Osa zavrtnja nije translacija rotacija. Osa rotacije ose "
+            "zavrtnja mora biti nulti vektor"
+        )
+        
+    # Prema jednacini <a, b> = ||a||*||b||*cos(a, b) dobijamo da ukoliko je
+    # a == b ili a == -b sledi da je, |<a, b>| = ||a||*||b||. Ako smatramo da
+    # je a == osa_zavrtnja1 i b == osa_zavrtnja_2, Pardos-Gotor 2 mozemo svesti
+    # na Pardos-Gotor 1 jer su ose zavrtnja kolinearne
+    if np.isclose(
+        np.abs(np.dot(osa_zavrtnja1, osa_zavrtnja2)),
+        np.linalg.norm(osa_zavrtnja1)*np.linalg.norm(osa_zavrtnja2)
+    ):
+        ugao = pardos_gotor1(osa_zavrtnja1, vek_pocetak, vek_kraj)
+        return (ugao, np.float64(0.0))
+    
+    c = vek_kraj \
+        + (
+            np.linalg.norm(np.cross(osa_zavrtnja2[3:], vek_pocetak - vek_kraj))
+            /np.linalg.norm(np.cross(osa_zavrtnja2[3:], osa_zavrtnja1[3:]))
+        ) \
+        *osa_zavrtnja1[3:] \
+        *np.sign(np.dot(
+            np.cross(osa_zavrtnja2[3:], vek_pocetak - vek_kraj),
+            np.cross(osa_zavrtnja2[3:], osa_zavrtnja1[3:])
+        ))
+
+    try:
+        resenje1 = pardos_gotor1(osa_zavrtnja1, c, vek_kraj)
+        resenje2 = pardos_gotor1(osa_zavrtnja2, vek_pocetak, c)
+    except PardosGotorError:
+        # pardos_gotor1() moze prijaviti gresku PardosGotorError(1), a zelimo
+        # da korisnik vidi PardosGotorError(2)
+        raise PardosGotorError(2) from None
+    
+    # S obzirom na izvor odakle je uzeto resenje, nisu navedeni uslovi
+    # postojanja podproblema, prema temo cemo proveriti resenja na osnovu
+    # glavne jednacine:
+    # kkt.SE3_proizvod_3D(
+    #   kkt.exp_vek_ugao(osa_zavrtnja1, resenje)
+    #       *kkt.exp_vek_ugao(osa_zavrtnja2, resenje),
+    #   vek_pocetak
+    # )
+    # == vek_kraj
+    # Sto se drugacije moze napisati kao
+    # resenje1*osa_zavrtnja1.reshape[3:] \
+    #   + resenje2*osa_zavrtnja2.reshape[3:] \
+    #   + vek_pocetak \
+    # == vek_kraj
+    # zato sto su ose zavrtnja ciste translacije
+    if np.allclose(
+        resenje1*osa_zavrtnja1[3:] + resenje2*osa_zavrtnja2[3:] + vek_pocetak,
+        vek_kraj
+    ):
+        return (resenje1, resenje2)
+    else:
+        raise PardosGotorError(2)
+
+def pardos_gotor3(
+    osa_zavrtnja: Sequence | NDArray,
+    vek_pocetak: Sequence | NDArray,
+    vek_kraj: Sequence | NDArray,
+    delta: float | np.float64
+) -> np.float64 | Tuple[np.float64, np.float64]:
+    """Resava 3. Pardos-Gotorov podproblem translacije tacke `vek_pocetak` duz
+    ose zavrtnja (koja je cista rotacija,
+    `np.linalg.norm(osa_zavrtnja[:3]) == 0.0`) za odredjenu vrednost tako da je
+    udaljena za `delta` od tacke `vek_kraj`
+    
+    Parametri
+    ---------
+    osa_zavrtnja : Sequence | NDArray
+        Osa zavrtnja duz koje treba translirati tacku `vek_pocetak` do tacke
+        `vek_kraj`. Vektor ne mora biti normalizovan i osa rotacije ose
+        zavrtnja mora biti nulti vektor
+    vek_pocetak : Sequence | NDArray
+        Pocetna tacka translacije cije su dimenzije 1x3 ili 3x1
+    vek_kraj : Sequence | NDArray
+        Druga tacka cije su dimenzije 1x3 ili 3x1
+    delta : float | np.float64
+        Distanca izmedju translirane tacke `vek_pocetak` duz ose `osa_zavrtnja`
+        i tacke `vek_kraj`
+    
+    Povratna vrednost
+    -----------------
+    np.float64 | Tuple[np.float64, np.float64]
+        Ovaj Pardos-Gotorov podproblem moze imati dva resenja, jedno resenje i
+        i nijedno resenje (tada se prijavljuje greska PardosGotorError). Kada
+        imamo jedno resenje onda je tip podataka povratne vrednost
+        `np.float64`, a kada imamo dva onda je tip podataka povratne vrednosti
+        `Tuple[np.float64, np.float64]`
+
+    Beleske
+    -------
+    Vise detalja o Pardos-Gotorovim podproblemima su dostupni na: Pardos-Gotor
+    J., "Screw Theory in Robotics: an Illustrated and Practicable Introduction
+    to Modern Mechanics", CRC Press, USA, 2022.
+    
+    Greske
+    ------
+    ValueError
+        Dimenzije unetih vektora su nepravilne. Osa zavrtnja nije cista
+        translacija, tj. njena osa rotacije nije jednaka nultom vektoru
+    PardosGotorError
+        Pardos-Gotorov podproblem nema resenja za zadate parametre
+    
+    Primeri
+    -------
+    >>> pardos_gotor3(
+        [0, 0, 0, 5, 0, 0],
+        [1, 0, 0],
+        [[3],
+         [2],
+         [0]],
+        3
+    )
+    (np.float64(4.236), np.float64(-0.236))
+    >>> pardos_gotor3(
+        [0, 0, 0, 1, 0, 0],
+        [1, 0, 0],
+        [3, 3, 0],
+        3
+    )
+    np.float64(2.0)
+    >>> pardos_gotor3(
+        [0, 0, 0, 0, 1, 0],
+        [0, 1, 0],
+        [0, 3, 0],
+        0
+    )
+    np.float64(2.0)
+    """
+    if not np.isclose(delta, 0.0) and delta < 0.0:
+        raise ValueError("Parametar duzine \"delta\" mora biti >= 0")
+
+    osa_zavrtnja = np.array(osa_zavrtnja, dtype=float)
+    vek_pocetak = np.array(vek_pocetak, dtype=float)
+    vek_kraj = np.array(vek_kraj, dtype=float)
+    delta = np.float64(delta)
+
+    _alati._vek_provera(osa_zavrtnja, 6, "osa_zavrtnja")
+    _alati._vek_provera(vek_pocetak, 3, "vek_pocetak")
+    _alati._vek_provera(vek_kraj, 3, "vek_kraj")
+
+    osa_zavrtnja = kkt.v_prostor_normiranje(osa_zavrtnja)
+
+    # Potrebni su vektori red za proracun
+    vek_pocetak = vek_pocetak.reshape(3)
+    vek_kraj = vek_kraj.reshape(3)
+    osa_zavrtnja = osa_zavrtnja.reshape(6)
+
+    if not np.isclose(np.linalg.norm(osa_zavrtnja[:3]), 0.0):
+        raise ValueError(
+            "Osa zavrtnja nije translacija rotacija. Osa rotacije ose "
+            "zavrtnja mora biti nulti vektor"
+        )
+    
+    primarno_resenje = np.dot(osa_zavrtnja[3:], vek_kraj - vek_pocetak)
+    
+    if np.isclose(delta, 0.0):
+        resenje = primarno_resenje
+    else:
+        resenje = (
+            primarno_resenje + np.sqrt(
+                primarno_resenje**2
+                - np.linalg.norm(vek_kraj - vek_pocetak)**2
+                + delta**2
+            ),
+            primarno_resenje - np.sqrt(
+                primarno_resenje**2
+                - np.linalg.norm(vek_kraj - vek_pocetak)**2
+                + delta**2
+            )
+        )
+    
+    # S obzirom na izvor odakle je uzeto resenje, nisu navedeni uslovi
+    # postojanja podproblema, prema temo cemo proveriti resenja na osnovu
+    # glavne jednacine:
+    # np.linalg.norm(
+    #   kkt.SE3_proizvod_3D(
+    #       kkt.exp_vek_ugao(osa_zavrtnja, resenje),
+    #       vek_pocetak
+    #   )
+    # - vek_kraj
+    # )
+    # == delta
+    # Sto se drugacije moze napisati kao
+    # np.linalg.norm(
+    #   resenje*osa_zavrtnja[3:]
+    #   + vek_pocetak \
+    #   - vek_kraj
+    # ) == delta
+    # zato sto su ose zavrtnja ciste translacije.
+    # Takodje, u slucaju da podproblem ima dva resenja, trebaju oba da se
+    # provere na isti nacin koji je prethodno naveden
+    if isinstance(resenje, tuple):
+        if np.isclose(
+            np.linalg.norm(
+                resenje[0]*osa_zavrtnja[3:] + vek_pocetak - vek_kraj
+            ),
+            delta
+        ) and np.isclose(
+            np.linalg.norm(
+                resenje[1]*osa_zavrtnja[3:] + vek_pocetak - vek_kraj
+            ),
+            delta
+        ):
+            return resenje
+        else:
+            raise PardosGotorError(3)
+    else:
+        if np.isclose(
+            np.linalg.norm(
+                resenje*osa_zavrtnja[3:] + vek_pocetak - vek_kraj
+            ),
+            delta
+        ):
+            return resenje
+        else:
+            raise PardosGotorError(3)

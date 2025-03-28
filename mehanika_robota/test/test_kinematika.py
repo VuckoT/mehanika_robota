@@ -429,8 +429,8 @@ def test_inv_kin() -> None:
 def test_paden_kahan1() -> None:
     f = kin.paden_kahan1
     
-
-    assert np.allclose(
+    # Pravilna upotreba
+    assert np.isclose(
         f(
             [0, -1, 0, 0, 0, 0],
             [0, 3, 1],
@@ -439,7 +439,7 @@ def test_paden_kahan1() -> None:
         1.57079632679
     )
     
-    assert np.allclose(
+    assert np.isclose(
         f(
             [[0],
              [0],
@@ -499,7 +499,7 @@ def test_paden_kahan2() -> None:
         ),
         ((1.04719755120, 0.0), (2.61799387799, 3.14159265359))
     )
-
+    
     assert np.allclose(
         f(
             [[0],
@@ -525,6 +525,76 @@ def test_paden_kahan2() -> None:
         (1.57079632679, 0.0)        
     )
     
+    assert np.allclose(
+        f(
+            [0, 0, 1, 3, 5, 0],
+            [0, 0, 1, 3, 0, 0],
+            [ 0, 3, 0],
+            [-5, 8, 0]
+        ),
+        (1.57079632679, 0.0)
+    )
+    
+    assert np.allclose(
+        f(
+            [0, 0, 1, 5, 0, 0],
+            [0, 0, 1, 3, 0, 0],
+            [0, 1, 0],
+            [0, 5, 0]
+        ),
+        (0.0, 3.14159265359)
+    )
+    
+    assert np.allclose(
+        f(
+            [0, 0, 1, 3, 5, 0],
+            [0, 0, 1, 3, 0, 0],
+            [ 2, 3, 0],
+            [-8, 3, 0]
+        ),
+        (3.14159265359, 3.14159265359)
+    )
+
+    assert np.allclose(
+        f(
+            [0, 0, 1, 3, 5, 0],
+            [0, 0, 1, 3, 0, 0],
+            [ 3, 3, 0],
+            [-8, 3, 0]
+        ),
+        ((-2.55590711013, 3.72727819705), (2.55590711013, 2.55590711013))
+    )
+    
+    assert np.allclose(
+        f(
+            [0, 0, -1, -3, -5, 0],
+            [0, 0,  1,  3,  0, 0],
+            [ 2, 3, 0],
+            [-5, 6, 0]
+        ),
+        (-1.57079632679, 3.14159265359)
+    )
+    
+    assert np.allclose(
+        f(
+            [0, 0, 1, 3, 5, 0],
+            [0, 0, -1, -3, 0, 0],
+            [ 3, 3, 0],
+            [-8, 3, 0]
+        ),
+        ((2.55590711013, 3.72727819705), (-2.55590711013, 2.55590711013))
+    )
+
+    assert np.allclose(
+        f(
+            [0, 1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 1],
+            [0, -1, 1],
+            [1, -1, 0]
+        ),
+        ((1.57079632679, 0.0), (-1.57079632679, -1.57079632679))
+    )
+
     # Nepravilna upotreba
     with pytest.raises(ValueError):
         f(
@@ -541,15 +611,31 @@ def test_paden_kahan2() -> None:
             [0, -1, 1],
             [1, -1, 0]
         )
-        
+
     with pytest.raises(ValueError):
         f(
-            [0, 1, 0, 0, 0, 0],
-            [0, 1, 0, 0, 0, 1],
+            [0, -1, 0, 0,  0, 0],
+            [1,  0, 0, 0, -1, 0],
             [0, -1, 1],
             [1, -1, 0]
         )
-    
+
+    with pytest.raises(kin.PadenKahanError):
+        f(
+            [0, 0, 1, 3, 5, 0],
+            [0, 0, 1, 3, 0, 0],
+            [2,   3, 0],
+            [0, -10, 0]
+        )
+
+    with pytest.raises(kin.PadenKahanError):
+        f(
+            [0, 0, 1, 3, 5, 0],
+            [0, 0, 1, 3, 0, 0],
+            [0, 3, 0],
+            [1, 0, 0]
+        )
+
     with pytest.raises(kin.PadenKahanError):
         f(
             [0, 1, 0, 0, 0, 0],
@@ -669,4 +755,162 @@ def test_paden_kahan3() -> None:
             [2],
             [2]],
             2e6
+        )
+        
+def test_pardos_gotor1() -> None:
+    f = kin.pardos_gotor1
+    
+    # Pravilna upotreba
+    assert np.isclose(
+        f(
+            [0, 0, 0, 1, 0, 0],
+            [1, 1, 0],
+            [4, 1, 0]
+        ),
+        (3.0)
+    )
+    
+    assert np.isclose(
+        f(
+            [[0],
+             [0],
+             [0],
+             [4],
+             [0],
+             [0]],
+            [1, 1, 0],
+            [[1],
+            [1],
+            [0]]
+        ),
+        (0.0)
+    )
+    
+    # Nepravilna upotreba
+    with pytest.raises(kin.PardosGotorError):
+        assert f(
+            [0, 0, 0, 1, 0, 0],
+            [1, 1, 0],
+            [4, 0, 0]
+        )
+
+def test_pardos_gotor2() -> None:
+    f = kin.pardos_gotor2
+    
+    # Pravilna upotreba
+    assert np.allclose(
+        f(
+            [0, 0, 0, 1, 0, 0],
+            [[0],
+             [0],
+             [0],
+             [np.sqrt(2)/2],
+             [np.sqrt(2)/2],
+             [0]],
+            [0, 1, 0],
+            [[2],
+             [2],
+             [0]]
+        ),
+        (1.0, 1.41421356237)
+    )
+    
+    assert np.allclose(
+        f(
+            [0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 0, 0],
+            [1, 0, 0],
+            [4, 0, 0]
+        ),
+        (3.0, 0.0)
+    )
+    
+    assert np.allclose(
+        f(
+            [0, 0, 0, 1, 1, 0],
+            [0, 0, 0, 1, 0, 0],
+            [2, 0, 0],
+            [1, 0, 0]
+        ),
+        (0.0, -1.0)
+    )
+    
+    # Nepravilna upotreba
+    with pytest.raises(kin.PardosGotorError):
+        assert f(
+            [0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 1, 0],
+            [0, 1, 0],
+            [2e6, 2e6, 2e6]
+        )
+
+def test_pardos_gotor3() -> None:
+    f = kin.pardos_gotor3
+    
+    # Pravilna upotreba
+    assert np.allclose(
+        f(
+            [0, 0, 0, 5, 0, 0],
+            [1, 0, 0],
+            [[3],
+             [2],
+             [0]],
+            3
+        ),
+        (4.23606797750, -0.23606797750)
+    )
+
+    assert np.allclose(
+        f(
+            [0, 0, 0, 1, 0, 0],
+            [1, 0, 0],
+            [3, 3, 0],
+            3
+        ),
+        (2.0)
+    )
+
+    assert np.allclose(
+        f(
+            [0, 0, 0, 0, 1, 0],
+            [0, 1, 0],
+            [0, 3, 0],
+            0
+        ),
+        (2.0)
+    )
+
+    assert np.allclose(
+        f(
+            [0, 0, 0, 0, 1, 0],
+            [0, 1, 0],
+            [0, 3, 0],
+            0
+        ),
+        (2.0)
+    )
+
+    # Nepravilna upotreba
+    with pytest.raises(ValueError):
+        assert f(
+            [0, 0, 0, 1, 0, 0],
+            [1, 0, 0],
+            [3, 3, 0],
+            -5
+        )
+
+    with pytest.raises(kin.PardosGotorError):
+        assert f(
+            [0, 0, 0, 1, 0, 0],
+            [0, -1, 0],
+            [3,  3, 0],
+            3
+        )
+
+    with pytest.raises(kin.PardosGotorError):
+        assert f(
+            [0, 0, 0, 0, 1, 0],
+            [1, 0, 0],
+            [0, 3, 0],
+            0
         )
