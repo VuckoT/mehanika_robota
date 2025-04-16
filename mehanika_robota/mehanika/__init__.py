@@ -15,5 +15,6 @@ Preporucen nacin uvoza biblioteke je
 
 from mehanika_robota.mehanika import (
     kinematika,
-    kretanje_krutog_tela
+    mat_prostor,
+    trajektorija
 )

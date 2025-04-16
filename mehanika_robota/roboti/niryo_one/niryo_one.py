@@ -7,7 +7,7 @@ Takodje sadrzi konstante vezane za mehanicke karakteristike Niryo One
 manipulatora
 
 Preporucen nacin uvoza modula je
->>> import mehanika_robota.niryo_one as n_one
+>>> import mehanika_robota.roboti.niryo_one as n_one
 """
 
 """
@@ -22,7 +22,7 @@ from typing import ClassVar, Sequence, Dict, Literal, Tuple, Union
 from mehanika_robota import _alati
 from mehanika_robota.mehanika import kinematika as kin
 from mehanika_robota.mehanika.kinematika import InvKinError
-from mehanika_robota.mehanika import kretanje_krutog_tela as kkt
+from mehanika_robota.mehanika import mat_prostor as mp
 from itertools import product
 
 """
@@ -131,7 +131,7 @@ def _exp_proizvod(
         )
 
     for i in range(i):
-        exp_proizvod = exp_proizvod@kkt.exp_vek_ugao(
+        exp_proizvod = exp_proizvod@mp.exp_vek_ugao(
             NiryoOne.S_PROSTOR[i], teta_lista[i]
         )
 
@@ -153,13 +153,13 @@ def _teta12_proracun(
             teta12 = kin.paden_kahan2(
                 NiryoOne.S_PROSTOR[0],
                 NiryoOne.S_PROSTOR[1],
-                kkt.SE3_proizvod_3D(
-                    kkt.exp_vek_ugao(
+                mp.SE3_proizvod_3D(
+                    mp.exp_vek_ugao(
                         NiryoOne.S_PROSTOR[2], pd_resenja[f"{grana}-1-1"][2]
                     ),
                     presek_ose456
                 ),
-                kkt.SE3_proizvod_3D(T1, presek_ose456)
+                mp.SE3_proizvod_3D(T1, presek_ose456)
             )
         except kin.PadenKahanError:            
             pd_resenja[f"{grana}-1-1"] = None
@@ -200,8 +200,8 @@ def _teta45_proracun(
                 # Najbliza tacka ose zavrtnja 6 iz koordinatnog pocetka        
                 (0.0, 0.0, NiryoOne.L[:4].sum()),
                 
-                kkt.SE3_proizvod_3D(
-                    kkt.inv(
+                mp.SE3_proizvod_3D(
+                    mp.inv(
                         _exp_proizvod(pd_resenja[podgrana + '1'][:3], 3)
                     )@T1,
                     (0.0, 0.0, NiryoOne.L[:4].sum())
@@ -234,8 +234,8 @@ def _teta6_proracun(
             teta6 = kin.paden_kahan1(
                 (1.0, 0.0, 0.0, 0.0, NiryoOne.L[:4].sum(), 0.0),
                 (1, 0, 0),
-                kkt.SE3_proizvod_3D(
-                    kkt.inv(_exp_proizvod(pd_resenja[grana][:5], 5))@T1,
+                mp.SE3_proizvod_3D(
+                    mp.inv(_exp_proizvod(pd_resenja[grana][:5], 5))@T1,
                     (1, 0, 0)
                 )
             )
@@ -301,7 +301,7 @@ def dir_kin(
             teta_lista,
         )
     else:
-        return kkt.inv(kin.dir_kin(
+        return mp.inv(kin.dir_kin(
             NiryoOne.M,
             NiryoOne.S_PROSTOR,
             teta_lista
@@ -381,13 +381,13 @@ def inv_kin(
     if koord_sistem_prostor:
         Tk = np.array(Tk, dtype=float)
     else:
-        Tk = kkt.inv(Tk)
+        Tk = mp.inv(Tk)
 
     _alati._mat_provera(Tk, (4, 4), "Tk")
     _alati._tol_provera(tol_omega, "tol_omega")
     _alati._tol_provera(tol_v, "tol_v")    
 
-    T1 = Tk@kkt.inv(
+    T1 = Tk@mp.inv(
         [[1.0, 0.0, 0.0, NiryoOne.L[4:7].sum()],
          [0.0, 1.0, 0.0,                   0.0],
          [0.0, 0.0, 1.0,  NiryoOne.L[:4].sum()],
@@ -429,7 +429,7 @@ def inv_kin(
             presek_ose456,
             presek_ose12,
             np.linalg.norm(
-                kkt.SE3_proizvod_3D(T1, presek_ose456) - presek_ose12
+                mp.SE3_proizvod_3D(T1, presek_ose456) - presek_ose12
             )
         )
     except kin.PadenKahanError:

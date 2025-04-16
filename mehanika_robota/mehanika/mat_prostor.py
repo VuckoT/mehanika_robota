@@ -1,13 +1,13 @@
 """
-Kretanje krutog tela
+Prostorna matematika
 ====================
-Modul za manipulaciju Lijevim grupama SO(3) i SE(3) kao i njihovim algebrama
-so(3) i se(3).
+Modul za odredjivanje kretanje krutog tela i njihova primena u robotici, sto
+podrazumeva kreiranje i manipulacija Lijevim grupama SO(3) i SE(3) kao i
+njihovim algebrama so(3) i se(3) respektivno.
 
 Preporucen nacin uvoza modula je
->>> import mehanika_robota.kretanje_krutog_tela as kkt
+>>> import mehanika_robota.mehanika.mat_prostor as mp
 """
-
 
 """
 *** BIBLIOTEKE ***
@@ -322,7 +322,7 @@ def vek_od_lijeve_algebre(
         else:
             return np.hstack([omega, mat[:3, 3]])
 
-def v_prostor_normiranje(
+def v_prostor_norm(
     v_prostor: Sequence | NDArray,
     vratiti_normu: bool = False
 ) -> NDArray[np.float64] | Tuple[NDArray[np.float64], np.float64]:
@@ -353,9 +353,9 @@ def v_prostor_normiranje(
 
     Primeri
     -------
-    >>> v_prostor_normiranje([1, 2, 3, 4, 5, 6])
+    >>> v_prostor_norm([1, 2, 3, 4, 5, 6])
     (np.array([0.267, 0.535, 0.802, 1.069, 1.336, 1.604]), 3.742)
-    >>> v_prostor_normiranje([[0],
+    >>> v_prostor_norm([[0],
                               [0],
                               [0],
                               [4],
@@ -367,7 +367,7 @@ def v_prostor_normiranje(
              [0.456],
              [0.570],
              [0.684]), 8.775)
-    >>> v_prostor_normiranje([0, 0, 0, 0, 0, 0], True)
+    >>> v_prostor_norm([0, 0, 0, 0, 0, 0], True)
     (np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0]), np.float64(0))
     """
     v_prostor = np.array(v_prostor, dtype=float)
@@ -729,7 +729,7 @@ def Ad(T: Sequence | NDArray) -> NDArray[np.float64]:
     ])
 
 
-def osa_zavrtnja_parametarski(
+def osa_zavrtnja_param(
     vek_ose: Sequence | NDArray,
     omegaS: Sequence | NDArray,
     korak_zavrtnja: float | np.float64,
@@ -737,7 +737,7 @@ def osa_zavrtnja_parametarski(
 ) -> NDArray[np.float64]:
     """Pretvara parametre `vek_ose`, `omegaS` i `korak_zavrtnja` u vektor ose
     zavrtnja. Za slucaj kada je osa zavrtnja cisto linearno kretanje
-    preporuceno je koristiti funkciju `mr.kkt.osa_zavrtnja_lin_v()`. Razlog
+    preporuceno je koristiti funkciju `mr.mp.osa_zavrtnja_lin_v()`. Razlog
     tome je da ce ova funkcija vratiti tacno resenje samo ukoliko vazi da je
     `np.isinf(korak_zavrtnja)`
     
@@ -771,7 +771,7 @@ def osa_zavrtnja_parametarski(
     
     Primeri
     -------
-    >>> osa_zavrtnja_parametarski(
+    >>> osa_zavrtnja_param(
         [[3],
          [0],
          [0]],
@@ -785,7 +785,7 @@ def osa_zavrtnja_parametarski(
               [0.0],
              [-3.0],
               [2.0]])
-    >>> osa_zavrtnja_parametarski(
+    >>> osa_zavrtnja_param(
         [3, 0, 0],
         [[0],
          [0],
@@ -832,7 +832,7 @@ def osa_zavrtnja_parametarski(
             [omegaS, np.cross(vek_ose, omegaS) + korak_zavrtnja*omegaS]
         )
 
-def parametri_ose_zavrtnja(
+def param_ose_zavrtnja(
     osa_zavrtnja: Sequence | NDArray
 ) -> ParametriOseZavrtnja:
     """Odredjuje parametre ose zavrtnja vek_ose, omegaS, korak_zavrtnja
@@ -869,13 +869,13 @@ def parametri_ose_zavrtnja(
     
     Primeri
     -------
-    >>> parametri_ose_zavrtnja([1, 0, 0, 0, 0, 1])
+    >>> param_ose_zavrtnja([1, 0, 0, 0, 0, 1])
     ParametriOseZavrtnja(
         vek_ose=np.array([0, -1, 0]),
         omegaS=np.array([1, 0, 0]),
         korak_zavrtnja=np.float64(0)
     )
-    >>> parametri_ose_zavrtnja([[1],
+    >>> param_ose_zavrtnja([[1],
                                 [0],
                                 [0],
                                 [1],
@@ -886,7 +886,7 @@ def parametri_ose_zavrtnja(
         omegaS=np.array([[1], [0], [0]]),
         korak_zavrtnja=np.float64(1)
     )
-    >>> parametri_ose_zavrtnja([3, 4, 12, 0, 0, 24])
+    >>> param_ose_zavrtnja([3, 4, 12, 0, 0, 24])
     ParametriOseZavrtnja(
         vek_ose=np.array([0.61538461538, -0.46153846154, 0.0]),
         omegaS=np.array([0.23076923077, 0.30769230769, 0.92307692308]),
@@ -897,7 +897,7 @@ def parametri_ose_zavrtnja(
     _alati._vek_provera(osa_zavrtnja, 6, "osa_zavrtnja")
     
     # Normirati vektor ose zavrtnja i pretvoriti ga u vektor reda
-    osa_zavrtnja = v_prostor_normiranje(osa_zavrtnja)
+    osa_zavrtnja = v_prostor_norm(osa_zavrtnja)
     
     if osa_zavrtnja.ndim == 1:
         if np.allclose(osa_zavrtnja[:3], np.zeros(3)):
@@ -963,7 +963,7 @@ def osa_zavrtnja_lin_v(v: Sequence | NDArray) -> NDArray[np.float64]:
               [1.0],
               [0.0],
               [0.0]])
-    >>> osa_zavrtnja_parametarski([0, 2, 0])
+    >>> osa_zavrtnja_param([0, 2, 0])
     np.array([0.0, 0.0, 0.0, 0.0, 2.0, 0.0])
     """
     v = np.array(v, dtype=float)
@@ -1225,9 +1225,9 @@ def exp_vek_ugao(
     ugao: int | float | np.int32 | np.float64
 ) -> NDArray[np.float64]:
     """Skraceni zapis od
-    `exp(lijeva_algebra_od_vek(v_prostor_normiranje(vek))*ugao)`
+    `exp(lijeva_algebra_od_vek(v_prostor_norm(vek))*ugao)`
     """
-    return exp(lijeva_algebra_od_vek(v_prostor_normiranje(vek))*ugao)
+    return exp(lijeva_algebra_od_vek(v_prostor_norm(vek))*ugao)
 
 def homogeni_vek(vek: Sequence | NDArray) -> NDArray[np.float64]:
     """Homogena reprezentacija vektora

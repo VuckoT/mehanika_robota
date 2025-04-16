@@ -2,16 +2,18 @@
 Kinematika
 ==========
 Modul za odredjivanje kinematike robota, sto podrazumeva:\n
--direktnu kinematiku,\n
--jakobijan,\n
--parametri manipulabilnosti,\n
--inverzna kinematika i\n
--Prva tri Paden-Kahanova podproblema za rotoidne zglobove.\n
+- direktnu kinematiku,\n
+- jakobijan,\n
+- parametri manipulabilnosti,\n
+- inverzna kinematika,\n
+- orgininalna Paden-Kahanova podproblema sa prosirenim drugim podproblemom za
+slucaj paralelnih osa koje se ne ukrstaju i\n
+- prva tri Pardos-Gotorova podproblema.\n
 
-Funkcije rade i sa prostornim koordinatama i koordinatama hvataca 
+Funkcije rade i sa prostornim koordinatama i koordinatama hvataca.
 
 Preporucen nacin uvoza modula je
->>> import mehanika_robota.kinematika as kin
+>>> import mehanika_robota.mehanika.kinematika as kin
 """
 
 """
@@ -19,7 +21,7 @@ Preporucen nacin uvoza modula je
 """
 import numpy as np
 from numpy.typing import NDArray
-from mehanika_robota.mehanika import kretanje_krutog_tela as kkt
+from mehanika_robota.mehanika import mat_prostor as mp
 from mehanika_robota import _alati
 from typing import Any, Literal, Optional, Sequence, Tuple
 from collections import namedtuple
@@ -238,17 +240,17 @@ def dir_kin(
     _alati._vek_provera(teta_lista, S_lista.shape[1], "teta_lista")
         
     # Normirati vektore ose zavrtnja
-    S_lista = np.apply_along_axis(kkt.v_prostor_normiranje, 0, S_lista)
+    S_lista = np.apply_along_axis(mp.v_prostor_norm, 0, S_lista)
 
     if koord_sistem_prostor:
         for i in range(teta_lista.shape[0] - 1, -1, -1):
-            T = kkt.exp(
-                kkt.lijeva_algebra_od_vek(teta_lista[i]*S_lista[:, i])
+            T = mp.exp(
+                mp.lijeva_algebra_od_vek(teta_lista[i]*S_lista[:, i])
             ) @ T
     else:
         for i in range(teta_lista.shape[0]):
-            T = T @ kkt.exp(
-                kkt.lijeva_algebra_od_vek(teta_lista[i]*S_lista[:, i])
+            T = T @ mp.exp(
+                mp.lijeva_algebra_od_vek(teta_lista[i]*S_lista[:, i])
             )        
 
     return T
@@ -376,7 +378,7 @@ def jakobijan(
     # `teta_lista` ima elemenata koliko `S_lista` ima vektora
     if teta_lista is None:
         _alati._mat_provera(S_lista, (6, 1), "S_lista")
-        return kkt.v_prostor_normiranje(S_lista)
+        return mp.v_prostor_norm(S_lista)
     else:
         _alati._mat_provera(S_lista, (6, S_lista.shape[1]), "S_lista")
         
@@ -386,22 +388,22 @@ def jakobijan(
         _alati._vek_provera(teta_lista, S_lista.shape[1] - 1, "teta_lista")
         
     # Normirati vektore ose zavrtnja
-    S_lista = np.apply_along_axis(kkt.v_prostor_normiranje, 0, S_lista)
+    S_lista = np.apply_along_axis(mp.v_prostor_norm, 0, S_lista)
 
     J = S_lista.copy()
 
     if koord_sistem_prostor:
         for i in range(teta_lista.shape[0]):
-            T = T @ kkt.exp(
-                kkt.lijeva_algebra_od_vek(teta_lista[i]*S_lista[:, i])
+            T = T @ mp.exp(
+                mp.lijeva_algebra_od_vek(teta_lista[i]*S_lista[:, i])
             )
-            J[:, i + 1] = kkt.Ad(T) @ J[:, i + 1]
+            J[:, i + 1] = mp.Ad(T) @ J[:, i + 1]
     else:
         for i in range(teta_lista.shape[0] - 1, -1, -1):
-            T = T @ kkt.exp(
-                kkt.lijeva_algebra_od_vek(-teta_lista[i]*S_lista[:, i + 1])
+            T = T @ mp.exp(
+                mp.lijeva_algebra_od_vek(-teta_lista[i]*S_lista[:, i + 1])
             )        
-            J[:, i] = kkt.Ad(T) @ J[:, i]
+            J[:, i] = mp.Ad(T) @ J[:, i]
 
     return J
 
@@ -482,7 +484,7 @@ def manip(
     _alati._mat_provera(J, (6, J.shape[1]), 'J')
     if not np.allclose(
         J,
-        np.apply_along_axis(kkt.v_prostor_normiranje, 0, J)
+        np.apply_along_axis(mp.v_prostor_norm, 0, J)
     ):
         raise ValueError(
             "Kolone Jakobijana \"J\" nisu ose zavrtnja, tj. normirane"
@@ -663,17 +665,17 @@ def inv_kin(
     _alati._vek_provera(teta_lista, S_lista.shape[1], "teta_lista0")
         
     # Normirati vektore ose zavrtnja
-    S_lista = np.apply_along_axis(kkt.v_prostor_normiranje, 0, S_lista)
+    S_lista = np.apply_along_axis(mp.v_prostor_norm, 0, S_lista)
     
     # Algoritam je namenjen za izracunavanje u koordinatnom sistemu hvataca
     if koord_sistem_prostor:
         S_lista = np.apply_along_axis(
-            lambda S: kkt.Ad(kkt.inv(M)) @ S,
+            lambda S: mp.Ad(mp.inv(M)) @ S,
             0,
             S_lista
         )
     
-    Vb = kkt.vek_od_lijeve_algebre(kkt.log(kkt.inv(
+    Vb = mp.vek_od_lijeve_algebre(mp.log(mp.inv(
         dir_kin(M, S_lista, teta_lista, False, True)
     ) @ Tk))
 
@@ -688,7 +690,7 @@ def inv_kin(
             )@Vb
 
         i = i + 1
-        Vb = kkt.vek_od_lijeve_algebre(kkt.log(kkt.inv(
+        Vb = mp.vek_od_lijeve_algebre(mp.log(mp.inv(
             dir_kin(M, S_lista, teta_lista, False, True)
         ) @ Tk))
 
@@ -782,7 +784,7 @@ def paden_kahan1(
     vek_kraj = vek_kraj.reshape(3)
     
     vek_ose, omegaS, korak_zavrtnja \
-        = kkt.parametri_ose_zavrtnja(osa_zavrtnja.reshape(6))
+        = mp.param_ose_zavrtnja(osa_zavrtnja.reshape(6))
     
     if not np.isclose(korak_zavrtnja, 0.0):
         raise ValueError(
@@ -946,14 +948,14 @@ def paden_kahan2(
     osa_zavrtnja1 = osa_zavrtnja1.reshape(6)
     osa_zavrtnja2 = osa_zavrtnja2.reshape(6)
 
-    osa_zavrtnja1 = kkt.v_prostor_normiranje(osa_zavrtnja1)
-    osa_zavrtnja2 = kkt.v_prostor_normiranje(osa_zavrtnja2)
+    osa_zavrtnja1 = mp.v_prostor_norm(osa_zavrtnja1)
+    osa_zavrtnja2 = mp.v_prostor_norm(osa_zavrtnja2)
 
     vek_ose1, omegaS1, korak_zavrtnja1 \
-        = kkt.parametri_ose_zavrtnja(osa_zavrtnja1)
+        = mp.param_ose_zavrtnja(osa_zavrtnja1)
     
     vek_ose2, omegaS2, korak_zavrtnja2 \
-        = kkt.parametri_ose_zavrtnja(osa_zavrtnja2)
+        = mp.param_ose_zavrtnja(osa_zavrtnja2)
     
     if not np.isclose(korak_zavrtnja1, 0.0):
         raise ValueError(
@@ -1156,8 +1158,8 @@ def paden_kahan2(
                     (
                         paden_kahan1(
                             osa_zavrtnja1,
-                            kkt.SE3_proizvod_3D(
-                                kkt.exp_vek_ugao(osa_zavrtnja2, ugao2[0]),
+                            mp.SE3_proizvod_3D(
+                                mp.exp_vek_ugao(osa_zavrtnja2, ugao2[0]),
                                 vek_pocetak
                             ),
                             vek_kraj
@@ -1167,8 +1169,8 @@ def paden_kahan2(
                     (
                         paden_kahan1(
                             osa_zavrtnja1,
-                            kkt.SE3_proizvod_3D(
-                                kkt.exp_vek_ugao(osa_zavrtnja2, ugao2[1]),
+                            mp.SE3_proizvod_3D(
+                                mp.exp_vek_ugao(osa_zavrtnja2, ugao2[1]),
                                 vek_pocetak
                             ),
                             vek_kraj
@@ -1180,8 +1182,8 @@ def paden_kahan2(
                 return (
                     paden_kahan1(
                         osa_zavrtnja1,
-                        kkt.SE3_proizvod_3D(
-                            kkt.exp_vek_ugao(osa_zavrtnja2, ugao2),
+                        mp.SE3_proizvod_3D(
+                            mp.exp_vek_ugao(osa_zavrtnja2, ugao2),
                             vek_pocetak
                         ),
                         vek_kraj
@@ -1304,14 +1306,14 @@ def paden_kahan3(
     _alati._vek_provera(vek_pocetak, 3, "vek_pocetak")
     _alati._vek_provera(vek_kraj, 3, "vek_kraj")
     
-    osa_zavrtnja = kkt.v_prostor_normiranje(osa_zavrtnja)
+    osa_zavrtnja = mp.v_prostor_norm(osa_zavrtnja)
     
     # Potrebni su vektori red za proracun
     vek_pocetak = vek_pocetak.reshape(3)
     vek_kraj = vek_kraj.reshape(3)
     
     vek_ose, omegaS, korak_zavrtnja \
-        = kkt.parametri_ose_zavrtnja(osa_zavrtnja.reshape(6))
+        = mp.param_ose_zavrtnja(osa_zavrtnja.reshape(6))
 
     if not np.isclose(korak_zavrtnja, 0.0):
         raise ValueError(
@@ -1381,8 +1383,8 @@ def paden_kahan3(
         if not np.isclose(np.linalg.norm(
             vek_kraj
             - (
-                kkt.exp_vek_ugao(osa_zavrtnja, teta[0])
-                @ kkt.homogeni_vek(vek_pocetak)
+                mp.exp_vek_ugao(osa_zavrtnja, teta[0])
+                @ mp.homogeni_vek(vek_pocetak)
             )[:3]
         ), delta):
             raise PadenKahanError(3)
@@ -1390,8 +1392,8 @@ def paden_kahan3(
         if not np.isclose(np.linalg.norm(
             vek_kraj
             - (
-                kkt.exp_vek_ugao(osa_zavrtnja, teta)
-                @ kkt.homogeni_vek(vek_pocetak)
+                mp.exp_vek_ugao(osa_zavrtnja, teta)
+                @ mp.homogeni_vek(vek_pocetak)
             )[:3]
         ), delta):
             raise PadenKahanError(3)
@@ -1471,7 +1473,7 @@ def pardos_gotor1(
     # Potrebni su vektori red za proracun
     vek_pocetak = vek_pocetak.reshape(3)
     vek_kraj = vek_kraj.reshape(3)
-    osa_zavrtnja = kkt.v_prostor_normiranje(osa_zavrtnja).reshape(6)
+    osa_zavrtnja = mp.v_prostor_norm(osa_zavrtnja).reshape(6)
     
     if not np.isclose(np.linalg.norm(osa_zavrtnja[:3]), 0.0):
         raise ValueError(
@@ -1484,7 +1486,7 @@ def pardos_gotor1(
     # S obzirom na izvor odakle je uzeto resenje, nisu navedeni uslovi
     # postojanja podproblema, prema temo cemo proveriti resenja na osnovu
     # glavne jednacine:
-    # kkt.SE3_proizvod_3D(kkt.exp_vek_ugao(osa_zavrtnja, resenje), vek_pocetak)
+    # mp.SE3_proizvod_3D(mp.exp_vek_ugao(osa_zavrtnja, resenje), vek_pocetak)
     # == vek_kraj
     # Sto se drugacije moze napisati kao
     # resenje*osa_zavrtnja.reshape[3:] + vek_pocetak == vek_kraj
@@ -1599,8 +1601,8 @@ def pardos_gotor2(
     osa_zavrtnja1 = osa_zavrtnja1.reshape(6)
     osa_zavrtnja2 = osa_zavrtnja2.reshape(6)
 
-    osa_zavrtnja1 = kkt.v_prostor_normiranje(osa_zavrtnja1)
-    osa_zavrtnja2 = kkt.v_prostor_normiranje(osa_zavrtnja2)
+    osa_zavrtnja1 = mp.v_prostor_norm(osa_zavrtnja1)
+    osa_zavrtnja2 = mp.v_prostor_norm(osa_zavrtnja2)
     
     if not np.isclose(np.linalg.norm(osa_zavrtnja1[:3]), 0.0):
         raise ValueError(
@@ -1647,9 +1649,9 @@ def pardos_gotor2(
     # S obzirom na izvor odakle je uzeto resenje, nisu navedeni uslovi
     # postojanja podproblema, prema temo cemo proveriti resenja na osnovu
     # glavne jednacine:
-    # kkt.SE3_proizvod_3D(
-    #   kkt.exp_vek_ugao(osa_zavrtnja1, resenje)
-    #       *kkt.exp_vek_ugao(osa_zavrtnja2, resenje),
+    # mp.SE3_proizvod_3D(
+    #   mp.exp_vek_ugao(osa_zavrtnja1, resenje)
+    #       *mp.exp_vek_ugao(osa_zavrtnja2, resenje),
     #   vek_pocetak
     # )
     # == vek_kraj
@@ -1753,7 +1755,7 @@ def pardos_gotor3(
     _alati._vek_provera(vek_pocetak, 3, "vek_pocetak")
     _alati._vek_provera(vek_kraj, 3, "vek_kraj")
 
-    osa_zavrtnja = kkt.v_prostor_normiranje(osa_zavrtnja)
+    osa_zavrtnja = mp.v_prostor_norm(osa_zavrtnja)
 
     # Potrebni su vektori red za proracun
     vek_pocetak = vek_pocetak.reshape(3)
@@ -1788,8 +1790,8 @@ def pardos_gotor3(
     # postojanja podproblema, prema temo cemo proveriti resenja na osnovu
     # glavne jednacine:
     # np.linalg.norm(
-    #   kkt.SE3_proizvod_3D(
-    #       kkt.exp_vek_ugao(osa_zavrtnja, resenje),
+    #   mp.SE3_proizvod_3D(
+    #       mp.exp_vek_ugao(osa_zavrtnja, resenje),
     #       vek_pocetak
     #   )
     # - vek_kraj

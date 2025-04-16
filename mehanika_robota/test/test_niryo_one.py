@@ -1,4 +1,4 @@
-"""Modul za testiranje objekata iz modula kretanje_krutog_tela
+"""Modul za testiranje objekata iz modula mat_prostor
 """
 
 """

@@ -1,18 +1,18 @@
-"""Modul za testiranje objekata iz modula kretanje_krutog_tela
+"""Modul za testiranje objekata iz modula mat_prostor
 """
 
 """
 *** BIBLIOTEKE ***
 """
 import numpy as np
-import mehanika_robota.mehanika.kretanje_krutog_tela as kkt
+import mehanika_robota.mehanika.mat_prostor as mp
 import pytest
 
 """
 *** TESTOVI ***
 """   
 def test_vek_norm() -> None:
-    f = kkt.vek_norm
+    f = mp.vek_norm
                 
     # Pravilna upotreba
     assert np.allclose(
@@ -51,7 +51,7 @@ def test_vek_norm() -> None:
         f([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])
 
 def test_inv() -> None:
-    f = kkt.inv    
+    f = mp.inv    
     
     # Pravilna upotreba
     assert np.allclose(
@@ -74,7 +74,7 @@ def test_inv() -> None:
     )
 
 def test_lijeva_algebra_od_vek() -> None:
-    f = kkt.lijeva_algebra_od_vek
+    f = mp.lijeva_algebra_od_vek
 
     # Pravilna upotreba
     assert np.allclose(
@@ -93,7 +93,7 @@ def test_lijeva_algebra_od_vek() -> None:
     )
     
 def test_vek_od_lijeve_algebre() -> None:
-    f = kkt.vek_od_lijeve_algebre
+    f = mp.vek_od_lijeve_algebre
     
     # Pravilna upotreba
     assert np.allclose(
@@ -113,8 +113,8 @@ def test_vek_od_lijeve_algebre() -> None:
         [1.2, 2.0, 3.0, 4.0, 5.4, 6.0]
     )
     
-def test_v_prostor_normiranje() -> None:
-    f = kkt.v_prostor_normiranje
+def test_v_prostor_norm() -> None:
+    f = mp.v_prostor_norm
     
     # Pravilna upotreba
     assert np.allclose(
@@ -171,7 +171,7 @@ def test_v_prostor_normiranje() -> None:
     )
 
 def test_exp() -> None:
-    f = kkt.exp
+    f = mp.exp
     
     # Pravilna upotreba
     assert np.allclose(
@@ -195,7 +195,7 @@ def test_exp() -> None:
     )
     
 def test_SE3_rastavi() -> None:
-    f = kkt.SE3_rastavi
+    f = mp.SE3_rastavi
     
     # Pravilna upotreba
     assert np.allclose(
@@ -237,7 +237,7 @@ def test_SE3_rastavi() -> None:
     )
 
 def test_log() -> None:
-    f = kkt.log
+    f = mp.log
 
     # Pravilna upotreba
     assert np.allclose(
@@ -261,7 +261,7 @@ def test_log() -> None:
     )
     
 def test_SE3_sastavi() -> None:
-    f = kkt.SE3_sastavi
+    f = mp.SE3_sastavi
 
     # Pravilna upotreba
     assert np.allclose(
@@ -293,7 +293,7 @@ def test_SE3_sastavi() -> None:
     )
 
 def test_Ad() -> None:
-    f = kkt.Ad
+    f = mp.Ad
 
     # Pravilna upotreba
     assert np.allclose(
@@ -309,8 +309,8 @@ def test_Ad() -> None:
          [0, 0,  0, 0, 1,  0]]
     )
     
-def test_osa_zavrtnja_parametarski() -> None:
-    f = kkt.osa_zavrtnja_parametarski
+def test_osa_zavrtnja_param() -> None:
+    f = mp.osa_zavrtnja_param
 
     # Pravilna upotreba
     assert np.allclose(
@@ -379,8 +379,8 @@ def test_osa_zavrtnja_parametarski() -> None:
     with pytest.raises(ValueError):
         assert f([1, 0, 0], [1, 0, 0], -3)
 
-def test_parametri_ose_zavrtnja() -> None:
-    f = kkt.parametri_ose_zavrtnja
+def test_param_ose_zavrtnja() -> None:
+    f = mp.param_ose_zavrtnja
     
     # Pravilna upotreba
     assert np.allclose(
@@ -403,7 +403,7 @@ def test_parametri_ose_zavrtnja() -> None:
     assert np.allclose(f([3, 4, 12, 0, 0, 26])[2], 1.84615384615)
 
 def test_osa_zavrtnja_lin_v() -> None:
-    f = kkt.osa_zavrtnja_lin_v
+    f = mp.osa_zavrtnja_lin_v
 
     # Pravilna upotreba
     assert np.allclose(
@@ -424,7 +424,7 @@ def test_osa_zavrtnja_lin_v() -> None:
     )
 
 def test__proj_SO3() -> None:
-    f = kkt._proj_SO3
+    f = mp._proj_SO3
 
     # Pravilna upotreba
     assert np.allclose(
@@ -446,7 +446,7 @@ def test__proj_SO3() -> None:
     )
     
 def test__proj_so3() -> None:
-    f = kkt._proj_so3
+    f = mp._proj_so3
 
     # Pravilna upotreba
     assert np.allclose(
@@ -459,7 +459,7 @@ def test__proj_so3() -> None:
     )
     
 def test__suprotan_znak_provera_test() -> None:
-    f = kkt._suprotan_znak_provera
+    f = mp._suprotan_znak_provera
     
     # Pravilna upotreba
     assert f(2.3, -23)
@@ -475,7 +475,7 @@ def test__suprotan_znak_provera_test() -> None:
     assert not f(-2.3, -2.3)
     
 def test__proj_lijeva_algebra_provera() -> None:
-    f = kkt._proj_lijeva_algebra_provera
+    f = mp._proj_lijeva_algebra_provera
 
     # Pravilna upotreba
     assert f(np.zeros((3, 3))) is None
@@ -506,7 +506,7 @@ def test__proj_lijeva_algebra_provera() -> None:
                            [2, 3,  0]]))
 
 def test_proj_grupa() -> None:
-    f = kkt.proj_grupa
+    f = mp.proj_grupa
 
     # Pravilna upotreba
     assert np.allclose(
@@ -580,7 +580,7 @@ def test_proj_grupa() -> None:
         f(np.eye(3), 2.3)
 
 def test_Rot() -> None:
-    f = kkt.Rot
+    f = mp.Rot
 
     # Pravilna upotreba
     assert np.allclose(
@@ -629,7 +629,7 @@ def test_Rot() -> None:
         assert f('x', 2.3, "asd")
 
 def test_Trans() -> None:
-    f = kkt.Trans
+    f = mp.Trans
 
     # Pravilna upotreba
     assert np.allclose(
@@ -641,7 +641,7 @@ def test_Trans() -> None:
     )
 
 def test_homogeni_vek() -> None:
-    f = kkt.homogeni_vek
+    f = mp.homogeni_vek
     
     # Pravilna upotreba
     assert np.allclose(
@@ -655,7 +655,7 @@ def test_homogeni_vek() -> None:
     )
 
 def test_SE3_proizvod_3D() -> None:
-    f = kkt.SE3_proizvod_3D
+    f = mp.SE3_proizvod_3D
     
     # Pravilna upotreba
     assert np.allclose(
