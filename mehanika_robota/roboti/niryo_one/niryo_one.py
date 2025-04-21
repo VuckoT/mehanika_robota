@@ -118,7 +118,8 @@ def _unutar_opsega_aktuiranja(teta_lista: Sequence | NDArray) -> bool:
     ))
 
 def _exp_proizvod(
-    teta_lista: Sequence | NDArray, i: int | np.int32
+    teta_lista: Sequence | NDArray,
+    i: np.int32
 ) -> NDArray[np.float64]:
     # Proracunava homogenu transformacionu matricu za Niryo One kao proizvod od
     # 1. do i-tog ugla
@@ -184,7 +185,7 @@ def _teta12_proracun(
 
 def _teta45_proracun(
     pd_resenja: Dict[str, Union[NDArray[np.float64], None]],
-    grana: Tuple[int, int],
+    grana: Tuple[np.int64, np.int64],
     T1: NDArray[np.float64]
 ) -> None:
     # Pomocna funkcija za odredjivanje uglova teta4 i teta5
@@ -222,7 +223,7 @@ def _teta45_proracun(
 
 def _teta6_proracun(
     pd_resenja: Dict[str, Union[NDArray[np.float64], None]],
-    grana: Tuple[int, int, int],
+    grana: Tuple[np.int64, np.int64, np.int64],
     T1: NDArray[np.float64]
 ) -> None:
     # Pomocna funkcija za odredjivanje uglova teta4 i teta5
@@ -250,6 +251,7 @@ def _teta6_proracun(
 """
 def dir_kin(
     teta_lista: Sequence | NDArray,
+    ofset_hvataca: np.float64 = 0.0,
     koord_sistem_prostor: bool = True,
 ) -> NDArray[np.float64]:
     """Odredjuje direktnu kinematiku gde je rezultat proracuna u prostornom
@@ -258,7 +260,12 @@ def dir_kin(
     Parametri
     ---------
     teta_list : Sequence | NDArray
-        Spisak/lista uglova rotacije zglobova dimenzije 1x6 ili 6x1     
+        Spisak/lista uglova rotacije zglobova dimenzije 1x6 ili 6x1
+    ofset_hvataca : np.float64, opcionalno
+        Ofset izmedju poslednjeg aktuatora i koordinatnog sistema hvataca u
+        pravcu x ose prostornog koordinatnog sistema robota. Korisno kada
+        zelimo da pomerimo koordinatni sistem hvataca usled npr. razlicitog
+        oblika hvataca. Automatska vrednost je 0.0
     koord_sistem_prostor : bool
         Odredjuje da li je matrica povratne vrednosti u prostornom koordinatnom
         sistemu-True ili u koordinatnom sistemu hvataca-False (automatska
@@ -289,28 +296,40 @@ def dir_kin(
               [0.348,  0.662,  0.664, -0.275]
               [  0.0,    0.0,    0.0,    1.0]])
     """
+    ofset_hvataca = np.float64(ofset_hvataca)
+
+    if ofset_hvataca < 0.0:
+        raise ValueError(
+            "Parametar \"ofset_hvataca\" ne zadovoljava uslov "
+            "ofset_hvataca >= 0"
+        )
+
     if not _unutar_opsega_aktuiranja(teta_lista):
         raise ValueError(
             "Uglovi iz \"teta_lista\" nisu unutar opsega aktuiranja"
         )    
+
+    M = NiryoOne.M.copy()
+    M[0, 3] += ofset_hvataca
     
     if koord_sistem_prostor:
         return kin.dir_kin(
-            NiryoOne.M,
+            M,
             NiryoOne.S_PROSTOR,
             teta_lista,
         )
     else:
         return mp.inv(kin.dir_kin(
-            NiryoOne.M,
+            M,
             NiryoOne.S_PROSTOR,
             teta_lista
         ))
 
 def inv_kin(
     Tk: Sequence | NDArray,
-    tol_omega: float | np.float64,
-    tol_v: float | np.float64,
+    tol_omega: np.float64,
+    tol_v: np.float64,
+    ofset_hvataca: np.float64 = 0.0,
     koord_sistem_prostor: bool = True
 ) -> Tuple[NDArray[np.float64], ...]:
     """Odredjuje inverznu kinematiku gde su parametri proracuna u prostornom
@@ -325,7 +344,12 @@ def inv_kin(
         Dozvoljena tolerancija za odstupanje po uglu od zeljene konfiguracije 
     tol_v : float | np.float64
         Dozvoljena tolerancija za odstupanje po poziciji od zeljene
-        konfiguracije 
+        konfiguracije
+    ofset_hvataca : np.float64, opcionalno
+        Ofset izmedju poslednjeg aktuatora i koordinatnog sistema hvataca u
+        pravcu x ose prostornog koordinatnog sistema robota. Korisno kada
+        zelimo da pomerimo koordinatni sistem hvataca usled npr. razlicitog
+        oblika hvataca. Automatska vrednost je 0.0
     koord_sistem_prostor : bool, opcionalno
         Odredjuje da li je `Tk` matrica pozicije i orijentacije koordinatnog
         sistema hvataca u odnosu na prostorni koordinatni sistem
@@ -377,6 +401,14 @@ def inv_kin(
         np.array([-0.176,  0.175, -0.174, 0.386,  0.051, -0.857]),
         np.array([-0.176,  0.175, -0.174, 0.386,  0.051, -0.857]))
     """
+    ofset_hvataca = np.float64(ofset_hvataca)
+
+    if ofset_hvataca < 0.0:
+        raise ValueError(
+            "Parametar \"ofset_hvataca\" ne zadovoljava uslov "
+            "ofset_hvataca >= 0"
+        )
+
     # Proracun je namenjen za matricu `Tk` u prostornom koordinatnom sistemu
     if koord_sistem_prostor:
         Tk = np.array(Tk, dtype=float)
@@ -387,11 +419,12 @@ def inv_kin(
     _alati._tol_provera(tol_omega, "tol_omega")
     _alati._tol_provera(tol_v, "tol_v")    
 
+    # T1 = Tk @ M^{-1}, s tim da je NiryoOne.L[7] kod M jednako nuli
     T1 = Tk@mp.inv(
-        [[1.0, 0.0, 0.0, NiryoOne.L[4:7].sum()],
-         [0.0, 1.0, 0.0,                   0.0],
-         [0.0, 0.0, 1.0,  NiryoOne.L[:4].sum()],
-         [0.0, 0.0, 0.0,                   1.0]]
+        [[1.0, 0.0, 0.0, NiryoOne.L[4:7].sum() + ofset_hvataca],
+         [0.0, 1.0, 0.0,                                   0.0],
+         [0.0, 0.0, 1.0,                  NiryoOne.L[:4].sum()],
+         [0.0, 0.0, 0.0,                                   1.0]]
     )
     
     # Recnik aproksimativnih resenja primenom Paden-Kahanovih podproblema gde
@@ -524,7 +557,10 @@ def inv_kin(
         raise InvKinError(
             "Inverzna kinematika nema resenja za zadate parametre"
         )
-    
+
+    M = NiryoOne.M.copy()
+    M[0, 3] += ofset_hvataca
+
     # Odredjivanje tacnog resenja na osnovu aproksimativnog iz `pd_resenja` ###
     resenja = []
     
@@ -532,7 +568,7 @@ def inv_kin(
        if pd_resenje is not None:
             try:
                 resenja.append(kin.inv_kin(
-                    NiryoOne.M,
+                    M,
                     NiryoOne.S_PROSTOR,
                     pd_resenje,
                     Tk,

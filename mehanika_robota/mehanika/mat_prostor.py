@@ -48,8 +48,8 @@ def _proj_so3(mat: NDArray) -> NDArray[np.float64]:
     ])
 
 def _suprotan_znak_provera(
-    a: int | float | np.float64,
-    b: int | float | np.float64
+    a: np.int64 | np.float64,
+    b: np.int64 | np.float64
 ) -> bool:
     # Proverava da li su `a` i `b` suprotnog znaka ili jednaki 0
     return (
@@ -732,7 +732,7 @@ def Ad(T: Sequence | NDArray) -> NDArray[np.float64]:
 def osa_zavrtnja_param(
     vek_ose: Sequence | NDArray,
     omegaS: Sequence | NDArray,
-    korak_zavrtnja: float | np.float64,
+    korak_zavrtnja: np.float64,
     vek_kolona: bool = False
 ) -> NDArray[np.float64]:
     """Pretvara parametre `vek_ose`, `omegaS` i `korak_zavrtnja` u vektor ose
@@ -1107,7 +1107,7 @@ def proj_grupa(
 
 def Rot(
     osa_rotacije: Literal['x', 'y', 'z'],
-    ugao: int | float | np.int32 | np.float64,
+    ugao: np.int32 | np.float64,
     grupa: Literal["SO3", "SE3"] = "SE3"
 ) -> NDArray[np.float64]:
     """Matrica iz grupe SO(3) ili SE(3) u slucaju da se osa rotacije/osa
@@ -1222,7 +1222,7 @@ def exp_vek(vek: Sequence | NDArray) -> NDArray[np.float64]:
 
 def exp_vek_ugao(
     vek: Sequence | NDArray,
-    ugao: int | float | np.int32 | np.float64
+    ugao: np.int32 | np.float64
 ) -> NDArray[np.float64]:
     """Skraceni zapis od
     `exp(lijeva_algebra_od_vek(v_prostor_norm(vek))*ugao)`

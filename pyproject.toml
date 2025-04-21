@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mehanika_robota"
-version = "2025.4.16"
+version = "2025.4.21"
 dependencies = [
     "numpy",
     "pyniryo",

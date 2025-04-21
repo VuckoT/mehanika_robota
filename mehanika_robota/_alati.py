@@ -15,7 +15,7 @@ from typing import Sequence
 
 def _mat_provera(
     mat: NDArray,
-    dim: Sequence[int] | Sequence[Sequence[int]] | NDArray[np.int32],
+    dim: Sequence[np.int64] | Sequence[Sequence[np.int64]] | NDArray[np.int64],
     mat_naziv: str = "mat"
 ) -> None:
     # Funkcija proverava da li je neka matrica `mat` dimenzije `dim` ili jedna
@@ -37,7 +37,7 @@ def _mat_provera(
 
 def _vek_provera(
     vek: NDArray,
-    dim: int | Sequence[int],
+    dim: np.int64 | Sequence[np.int64],
     vek_naziv: str = "vek"
 ):
     # Funkcija proverava da li je neki vektor `vek` dimenzije `dim`x1 ili
@@ -58,7 +58,7 @@ def _vek_provera(
         _mat_provera(vek, [(dim, ), (dim, 1)], vek_naziv)
 
 def _tol_provera(
-    tol: int | float | np.float64,
+    tol: np.int64 | np.float64,
     tol_naziv: str = "tol"
 ) -> None:
     # Funkcija proverava da li je neka tolerancija veca od 0 i prikazuje gresku

@@ -140,7 +140,7 @@ class PardosGotorError(Exception):
 def dir_kin(
     M: Sequence | NDArray,
     S_lista: Sequence | NDArray,
-    teta_lista: Sequence | NDArray | int | float | np.int32 | np.float64,
+    teta_lista: Sequence | NDArray | np.int32 | np.float64,
     koord_sistem_prostor: bool = True,
     vek_kolona: bool = False
 ) -> NDArray[np.float64]:
@@ -163,7 +163,7 @@ def dir_kin(
         broj vektora ose zavrtnja S. Ose zavrtnja ne moraju biti normirane,
         tj. svejedno je da li je `S_lista` sastavljena od ose zavrtnja, vektora
         prostornih brzina ili neke kombinacije istih
-    teta_lista : Sequence | NDArray | int | float | np.int32 | np.float64
+    teta_lista : Sequence | NDArray | np.int32 | np.float64
         Spisak/lista uglova rotacije zglobova (u slucaju da neka osa
         predstavlja iskljucivo linearno kretanje, teta za taj zglob predstavlja
         duzinu linearnog kretanja). Dimenzije su 1xn ili nx1 gde je n broj
@@ -258,7 +258,7 @@ def dir_kin(
 def jakobijan(
     S_lista: Sequence | NDArray,
     teta_lista: Optional[
-        Sequence | NDArray | int | float | np.int32 | np.float64
+        Sequence | NDArray | np.int32 | np.float64
     ] = None,
     koord_sistem_prostor: bool = True,
     vek_kolona: bool = False
@@ -522,11 +522,11 @@ def manip(
 def inv_kin(
     M: Sequence | NDArray,
     S_lista: Sequence | NDArray,
-    teta_lista0: Sequence | NDArray | int | float | np.int32 | np.float64,
+    teta_lista0: Sequence | NDArray | np.int64 | np.float64,
     Tk: Sequence | NDArray,
-    tol_omega: float | np.float64,
-    tol_v: float | np.float64,
-    max_iteracija: int | np.int32 = 20,
+    tol_omega: np.float64,
+    tol_v: np.float64,
+    max_iter: np.int64 = 20,
     koord_sistem_prostor: bool = True,
     vek_kolona: bool = False
 ) -> NDArray[np.float64]:
@@ -549,7 +549,7 @@ def inv_kin(
         broj vektora ose zavrtnja S. Ose zavrtnja ne moraju biti normirane,
         tj. svejedno je da li je `S_lista` sastavljena od ose zavrtnja, vektora
         prostornih brzina ili neke kombinacije istih
-    teta_lista0 : Sequence | NDArray | int | float | np.int32 | np.float64
+    teta_lista0 : Sequence | NDArray | np.int32 | np.float64
         Spisak/lista uglova rotacije zglobova (u slucaju da neka osa
         predstavlja iskljucivo linearno kretanje, teta za taj zglob predstavlja
         duzinu linearnog kretanja) kao prvi nagadjaj u iterativnoj metodi.
@@ -558,11 +558,14 @@ def inv_kin(
         niz tipa Sequence ili NDArray
     Tk : Sequence | NDArray
         SE(3) matrica konacne/zeljene konfiguracije robota
-    tol_omega : float | np.float64
+    tol_omega : np.float64
         Dozvoljena tolerancija za odstupanje po uglu od zeljene konfiguracije 
-    tol_v : float | np.float64
+    tol_v : np.float64
         Dozvoljena tolerancija za odstupanje po poziciji od zeljene
-        konfiguracije 
+        konfiguracije
+    max_iter : np.int64, opcionalno
+        Maksimalan broj iteracija funkcije `inv_kin`, posle cega se pojavljuje
+        greska ukoliko funkcija ne konvergira. Automatska vrednost je 0.0
     koord_sistem_prostor : bool, opcionalno
         Odredjuje da li se ose zavrtnjeva iz `S_lista` smatra da su definise u
         prostornom koordinatnom sistemu ili u koordinatnom sistemu zakacen za
@@ -586,7 +589,7 @@ def inv_kin(
         Nepravilne dimenzije ulaznih parametara
     InvKinError
         Algoritam nije konvergiraro u roku od broja iteracija jednako
-        `max_iteracija`
+        `max_iter`
     
     Primeri
     -------
@@ -639,9 +642,9 @@ def inv_kin(
     _alati._mat_provera(Tk, (4, 4), "Tk")
     _alati._mat_provera(M, (4, 4), 'M')
     
-    if max_iteracija < 1:
+    if max_iter < 1:
         raise ValueError(
-            "Broj iteracija algoritma \"max_iteracija\" ne sme biti <0"
+            "Broj iteracija algoritma \"max_iter\" ne sme biti <0"
     )
 
     # Lista uglova mora biti u obliku 1D niza
@@ -683,7 +686,7 @@ def inv_kin(
         or np.linalg.norm(Vb[3:]) > tol_v
     
     i = 0
-    while greska and i < max_iteracija:
+    while greska and i < max_iter:
         teta_lista = teta_lista \
             + np.linalg.pinv(
                 jakobijan(S_lista, teta_lista[1:], False, True)
@@ -697,10 +700,10 @@ def inv_kin(
         greska = np.linalg.norm(Vb[:3]) > tol_omega \
             or np.linalg.norm(Vb[3:]) > tol_v
 
-    if i == max_iteracija:
+    if i == max_iter:
         raise InvKinError(
             f"Proracun inverzne kinematike nije konvergirao nakon maksimalnog "
-            f"broja iteracija \"max_iteracija\" = {max_iteracija}"
+            f"broja iteracija \"max_iter\" = {max_iter}"
         )
 
     return teta_lista
@@ -1204,7 +1207,7 @@ def paden_kahan3(
     osa_zavrtnja: Sequence | NDArray,
     vek_pocetak: Sequence | NDArray,
     vek_kraj: Sequence | NDArray,
-    delta: float | np.float64
+    delta: np.float64
 ) -> np.float64 | Tuple[np.float64, np.float64]:
     """Resava 3. Paden-Kahanov podproblem rotacije tacke `vek_pocetak` oko
     ose zavrtnja (koja je cista rotacija, `korak == 0`) za odredjeni ugao
@@ -1673,7 +1676,7 @@ def pardos_gotor3(
     osa_zavrtnja: Sequence | NDArray,
     vek_pocetak: Sequence | NDArray,
     vek_kraj: Sequence | NDArray,
-    delta: float | np.float64
+    delta: np.float64
 ) -> np.float64 | Tuple[np.float64, np.float64]:
     """Resava 3. Pardos-Gotorov podproblem translacije tacke `vek_pocetak` duz
     ose zavrtnja (koja je cista rotacija,
